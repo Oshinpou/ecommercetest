@@ -82,3 +82,19 @@ function getCart(callback) {
     if (data) callback(data);
   });
 }
+
+function addToCart(productId) {
+  if (!currentUser) {
+    alert("Please login first.");
+    window.location.href = "login.html";
+    return;
+  }
+  const timestamp = new Date().toISOString();
+  const cartItem = { id: productId, added: timestamp };
+
+  gun.get('users').get(currentUser).get('cart').set(cartItem);
+  pouch.put({ _id: 'cart_' + productId + '_' + timestamp, ...cartItem });
+  couch.put({ _id: 'cart_' + productId + '_' + timestamp, ...cartItem });
+
+  alert("Added to cart.");
+}
