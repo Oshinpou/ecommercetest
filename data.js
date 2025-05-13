@@ -190,3 +190,23 @@ export const setCurrency = (currency) => {
 }
 
 export const getCurrency = () => selectedCurrency
+
+// Store per-user account data
+export function setCurrency(currency) {
+  const username = localStorage.getItem('loggedInUser')
+  if (!username) return
+
+  const allAccounts = JSON.parse(localStorage.getItem('accounts')) || {}
+  if (!allAccounts[username]) return
+
+  allAccounts[username].currency = currency
+  localStorage.setItem('accounts', JSON.stringify(allAccounts))
+}
+
+export function getCurrency() {
+  const username = localStorage.getItem('loggedInUser')
+  if (!username) return 'USD'
+
+  const allAccounts = JSON.parse(localStorage.getItem('accounts')) || {}
+  return allAccounts[username]?.currency || 'USD'
+}
