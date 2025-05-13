@@ -1,106 +1,53 @@
-// Initialize Gun
-const gun = Gun(['https://gunjs-server.herokuapp.com/gun']); // You can set up your own relay too
-const pouch = new PouchDB('macx_local');
-const couch = new PouchDB('https://admin:password@yourcouchdbserver.com/macx_users', {
-  skip_setup: true,
-});
+// Core utility setup for bobomacx data.js // This file uses Gun.js, PouchDB, and CouchDB to support global, real-time, distributed account management and data sync
 
-// Global user node
-let userNode = null;
-let currentUser = null;
+import Gun from 'https://cdn.jsdelivr.net/npm/gun/gun.js' import SEA from 'https://cdn.jsdelivr.net/npm/gun/sea.js' import 'https://cdn.jsdelivr.net/npm/gun/nts.js' import PouchDB from 'https://cdn.jsdelivr.net/npm/pouchdb/dist/pouchdb.min.js'
 
-// SIGNUP
-function signup() {
-  const email = document.getElementById('signupEmail').value;
-  const password = document.getElementById('signupPassword').value;
+const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']) const db = new PouchDB('bobomacx_local')
 
-  gun.get('users').get(email).put({ email, password });
-  pouch.put({ _id: email, password });
-  couch.put({ _id: email, password });
+const auth = Gun.SEA
 
-  alert("Account created successfully.");
-}
+// Global variables let currentUser = null let userData = {}
 
-// LOGIN
-function login() {
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
+/** Core Function Groups (100 Functional Expectations) */
 
-  gun.get('users').get(email).once(data => {
-    if (data && data.password === password) {
-      localStorage.setItem('macx_user', email);
-      currentUser = email;
-      alert("Logged in!");
-      window.location.href = "home.html"; // redirect to logged-in page
-    } else {
-      alert("Invalid credentials.");
-    }
-  });
-}
+/** User Account Functions */ export const createAccount = async (username, password) => { const pair = await auth.pair() const encrypted = await auth.encrypt(password, pair) gun.get('accounts').get(username).put({ pub: pair.pub, epub: pair.epub, password: encrypted, createdAt: Date.now() }) localStorage.setItem('bobomacx_user', username) currentUser = username }
 
-// RECOVER PASSWORD (Simple demo)
-function recoverPassword() {
-  const email = document.getElementById('recoverEmail').value;
-  gun.get('users').get(email).once(data => {
-    if (data) {
-      alert("Your password is: " + data.password);
-    } else {
-      alert("Email not found.");
-    }
-  });
-}
+export const loginAccount = async (username, password) => { gun.get('accounts').get(username).once(async data => { if (!data) return alert('User not found') const decrypted = await auth.decrypt(data.password, data) if (decrypted !== password) return alert('Incorrect password') localStorage.setItem('bobomacx_user', username) currentUser = username loadUserData() }) }
 
-// LOGGED-IN SESSION ACROSS PAGES
-window.onload = function () {
-  const email = localStorage.getItem('macx_user');
-  if (email) {
-    currentUser = email;
-    userNode = gun.get('users').get(email);
-  }
-}
+export const logoutAccount = () => { localStorage.removeItem('bobomacx_user') currentUser = null userData = {} }
 
-// Example function to save product to cart
-function addToCart(productId) {
-  if (!currentUser) return alert("Login required");
-  gun.get('users').get(currentUser).get('cart').set(productId);
-  pouch.put({ _id: 'cart_' + productId, productId });
-  couch.put({ _id: 'cart_' + productId, productId });
-}
+export const recoverPassword = async (username, hint) => { // Implement with user-defined questions or OTP methods }
 
-// Store and manage all account-specific data
-function saveUserData(key, value) {
-  if (!currentUser) return;
-  gun.get('users').get(currentUser).get(key).put(value);
-  pouch.put({ _id: currentUser + '_' + key, value });
-  couch.put({ _id: currentUser + '_' + key, value });
-}
+/** Session & Auto-login */ export const autoLogin = () => { const user = localStorage.getItem('bobomacx_user') if (user) { currentUser = user loadUserData() } }
 
-// Example: Retrieve cart
-function getCart(callback) {
-  if (!currentUser) return;
-  gun.get('users').get(currentUser).get('cart').map().once(data => {
-    if (data) callback(data);
-  });
-}
+/** Load All User Data */ const loadUserData = () => { if (!currentUser) return gun.get('data').get(currentUser).map().on((val, key) => { userData[key] = val db.put({ _id: key, ...val }).catch(() => {}) }) }
 
-function addToCart(productId) {
-  if (!currentUser) {
-    alert("Please login first.");
-    window.location.href = "login.html";
-    return;
-  }
-  const timestamp = new Date().toISOString();
-  const cartItem = { id: productId, added: timestamp };
+/** Save Any Data Type */ export const saveData = (type, data) => { if (!currentUser) return gun.get('data').get(currentUser).get(type).put(data) db.put({ _id: type, ...data }).catch(() => {}) }
 
-  gun.get('users').get(currentUser).get('cart').set(cartItem);
-  pouch.put({ _id: 'cart_' + productId + '_' + timestamp, ...cartItem });
-  couch.put({ _id: 'cart_' + productId + '_' + timestamp, ...cartItem });
+/** Product Card */ export const generateProductCard = ({ id, name, desc, usage, warning, ingredients, price, image, reviews, views, currency }) => { return { id, name, description: desc, usage, warning, ingredients, price, image, reviews, views, currency, url: view-product.html?id=${id}, token: ${name}-${id}.replace(/\s+/g, '-') } }
 
-  alert("Added to cart.");
-}
+/** Cart Functions */ export const addToCart = (product) => { if (!userData.cart) userData.cart = [] userData.cart.push(product) saveData('cart', { items: userData.cart }) }
 
-<!-- FILE: data.js (minimal base logic) -->
+export const removeFromCart = (id) => { if (!userData.cart) return userData.cart = userData.cart.filter(p => p.id !== id) saveData('cart', { items: userData.cart }) }
 
-  const gun = Gun();
-  let currentUser = localStorage.getItem("macx_user");
-  if (!currentUser && location.pathname !== "/login.html") location.href = "login.html";
+export const clearCart = () => { userData.cart = [] saveData('cart', { items: [] }) }
+
+/** Orders */ export const createOrder = (order) => { if (!userData.orders) userData.orders = [] userData.orders.push(order) saveData('orders', { history: userData.orders }) }
+
+/** Favorites */ export const addToFavorites = (id) => { if (!userData.favorites) userData.favorites = [] userData.favorites.push(id) saveData('favorites', { items: userData.favorites }) }
+
+/** Notifications */ export const notify = (msg) => { if (!userData.notifications) userData.notifications = [] userData.notifications.push({ msg, time: Date.now() }) saveData('notifications', { list: userData.notifications }) }
+
+/** History */ export const addToHistory = (action) => { if (!userData.history) userData.history = [] userData.history.push({ action, time: Date.now() }) saveData('history', { events: userData.history }) }
+
+/** Complaint */ export const fileComplaint = (text) => { if (!userData.complaints) userData.complaints = [] userData.complaints.push({ text, date: Date.now() }) saveData('complaints', { list: userData.complaints }) }
+
+/** Support, Help, FAQs, Policies */ export const storeStaticPages = (section, html) => { saveData(static_${section}, { content: html }) }
+
+/** Peer-to-Peer and Couch Sync */ export const syncWithCouch = (remoteUrl) => { const remoteDB = new PouchDB(remoteUrl) db.sync(remoteDB, { live: true, retry: true }) }
+
+/** Utility */ export const getAccountData = (key) => userData[key] || null export const isLoggedIn = () => !!currentUser
+
+// More utilities and feature-specific handlers can be generated based on this template
+
+  
