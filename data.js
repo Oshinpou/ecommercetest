@@ -210,3 +210,62 @@ export function getCurrency() {
   const allAccounts = JSON.parse(localStorage.getItem('accounts')) || {}
   return allAccounts[username]?.currency || 'USD'
 }
+
+localStorage.setItem('bobomacx_currency', currency)
+  }
+}
+
+export const getCurrency = () => selectedCurrency
+
+/** Currency Conversion (Basic placeholder) */
+export const convertPrice = (amount, rate = 1) => {
+  return parseFloat((amount * rate).toFixed(2))
+}
+
+/** Views Counter */
+export const incrementProductView = (id) => {
+  gun.get('views').get(id).once(data => {
+    const count = (data || 0) + 1
+    gun.get('views').get(id).put(count)
+  })
+}
+
+/** Reviews Handler */
+export const addReview = (productId, review) => {
+  const reviewId = `${productId}-${Date.now()}`
+  gun.get('reviews').get(productId).get(reviewId).put({
+    ...review,
+    createdAt: Date.now()
+  })
+}
+
+/** Fetch Reviews */
+export const getReviews = (productId, callback) => {
+  gun.get('reviews').get(productId).map().on(callback)
+}
+
+/** Recently Viewed Products */
+export const addRecentlyViewed = (product) => {
+  if (!userData.recentlyViewed) userData.recentlyViewed = []
+  userData.recentlyViewed = [product, ...userData.recentlyViewed.filter(p => p.id !== product.id)].slice(0, 10)
+  saveData('recentlyViewed', { items: userData.recentlyViewed })
+}
+
+/** Promo Code Application */
+export const applyPromoCode = (code) => {
+  // Placeholder logic, can be extended with real promo rules
+  const validCodes = {
+    'WELCOME10': 10,
+    'LUXURY20': 20,
+    'BOBOSAVE30': 30
+  }
+  return validCodes[code] || 0
+}
+
+/** Search History */
+export const addSearchTerm = (term) => {
+  if (!userData.searchHistory) userData.searchHistory = []
+  userData.searchHistory.unshift({ term, time: Date.now() })
+  userData.searchHistory = userData.searchHistory.slice(0, 20)
+  saveData('searchHistory', { terms: userData.searchHistory })
+}
