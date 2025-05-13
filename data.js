@@ -171,3 +171,22 @@ export const syncWithCouch = (remoteUrl) => {
 /** Utility */
 export const getAccountData = (key) => userData[key] || null
 export const isLoggedIn = () => !!currentUser
+
+/** Currency Management */
+export const currencyOptions = [
+  'USD', 'INR', 'EUR', 'GBP', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF', 'SGD',
+  'HKD', 'SEK', 'NOK', 'KRW', 'BRL', 'MXN', 'NZD', 'ZAR', 'RUB', 'AED',
+  'TRY', 'THB', 'MYR', 'PHP', 'IDR', 'PLN', 'DKK', 'HUF', 'ILS', 'SAR'
+]
+
+let selectedCurrency = localStorage.getItem('bobomacx_currency') || 'USD'
+
+export const setCurrency = (currency) => {
+  if (currencyOptions.includes(currency)) {
+    selectedCurrency = currency
+    localStorage.setItem('bobomacx_currency', currency)
+    notify(`Currency changed to ${currency}`)
+  }
+}
+
+export const getCurrency = () => selectedCurrency
