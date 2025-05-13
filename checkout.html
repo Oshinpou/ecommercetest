@@ -1,0 +1,26 @@
+<!-- FILE: checkout.html -->
+<!DOCTYPE html>
+<html>
+<head><title>Checkout</title></head>
+<body>
+  <div id="checkout"></div><button onclick="placeOrder()">Place Order</button>
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  <script src="data.js"></script>
+  <script>
+    let total = 0;
+    gun.get("users").get(currentUser).get("cart").map().once(item => {
+      if (!item) return;
+      gun.get("products").get(item.productId).once(p => {
+        checkout.innerHTML += `<p>${p.name} - ₹${p.price}</p>`;
+        total += parseInt(p.price);
+      });
+    });
+    function placeOrder() {
+      const orderId = "ORD" + Date.now();
+      gun.get("users").get(currentUser).get("orders").get(orderId).put({ id: orderId, date: new Date().toLocaleString(), status: "Placed", total });
+      gun.get("users").get(currentUser).get("cart").put(null);
+      alert("Order placed");
+    }
+  </script>
+</body>
+</html>
