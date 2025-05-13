@@ -1,47 +1,29 @@
+<!-- FILE: admin.html -->
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Admin Panel - Add Product</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+<head><title>Admin Panel</title></head>
 <body>
-  <h1>Add New Product</h1>
-  <form id="addProductForm">
-    <input type="text" id="productId" placeholder="Product ID (e.g. macx-cream-001)" required><br>
-    <input type="text" id="productName" placeholder="Product Name" required><br>
-    <input type="text" id="productDesc" placeholder="Description" required><br>
-    <input type="text" id="productImage" placeholder="Image URL" required><br>
-    <input type="number" id="productPrice" placeholder="Price" required><br>
-    <textarea id="productIngredients" placeholder="Ingredients"></textarea><br>
-    <textarea id="productUsage" placeholder="Usage Instructions"></textarea><br>
-    <textarea id="productWarning" placeholder="Warning Notes"></textarea><br>
-    <button type="submit">Add Product</button>
+  <form id="addProduct">
+    <input placeholder="ID" id="pid">
+    <input placeholder="Name" id="pname">
+    <input placeholder="Description" id="pdesc">
+    <input placeholder="Image URL" id="pimg">
+    <input placeholder="Price" id="pprice" type="number">
+    <textarea placeholder="Ingredients" id="ping"></textarea>
+    <textarea placeholder="Usage" id="puse"></textarea>
+    <textarea placeholder="Warning" id="pwarn"></textarea>
+    <button>Add</button>
   </form>
-
   <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
   <script src="data.js"></script>
   <script>
-    document.getElementById("addProductForm").addEventListener("submit", function(e) {
+    addProduct.onsubmit = e => {
       e.preventDefault();
-
-      const id = document.getElementById("productId").value;
-      const product = {
-        id: id,
-        name: document.getElementById("productName").value,
-        description: document.getElementById("productDesc").value,
-        image: document.getElementById("productImage").value,
-        price: document.getElementById("productPrice").value,
-        ingredients: document.getElementById("productIngredients").value,
-        usage: document.getElementById("productUsage").value,
-        warning: document.getElementById("productWarning").value,
-        views: 0,
-        reviews: []
-      };
-
-      gun.get("products").get(id).put(product);
-      alert("Product added successfully!");
-      document.getElementById("addProductForm").reset();
-    });
+      const p = { id: pid.value, name: pname.value, description: pdesc.value, image: pimg.value, price: pprice.value, ingredients: ping.value, usage: puse.value, warning: pwarn.value, views: 0, reviews: [] };
+      gun.get("products").get(pid.value).put(p);
+      alert("Product Added");
+      addProduct.reset();
+    };
   </script>
 </body>
 </html>
