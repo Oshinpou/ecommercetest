@@ -98,3 +98,9 @@ function addToCart(productId) {
 
   alert("Added to cart.");
 }
+
+<!-- FILE: data.js (minimal base logic) -->
+
+  const gun = Gun();
+  let currentUser = localStorage.getItem("macx_user");
+  if (!currentUser && location.pathname !== "/login.html") location.href = "login.html";
