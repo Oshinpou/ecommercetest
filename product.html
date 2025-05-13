@@ -1,85 +1,23 @@
+<!-- FILE: product.html -->
 <!DOCTYPE html>
 <html>
-<head>
-  <title>MACX Marketplace - Product</title>
-  <link rel="stylesheet" href="styles.css">
-<style>
-  .product-card {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 20px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.product-card img {
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-}
-.product-card h2 {
-  margin-top: 10px;
-}
-.product-card p {
-  margin: 5px 0;
-}
-</style>
-</head>
+<head><title>Product</title></head>
 <body>
-  <div class="product-container" id="productCard">
-    <!-- Dynamic Product Card will be loaded here -->
-  </div>
-
+  <div id="product"></div>
+  <button onclick="addToCart()">Add to Cart</button>
   <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.2.2/dist/pouchdb.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pouchdb-authentication@1.1.3/dist/pouchdb.authentication.min.js"></script>
   <script src="data.js"></script>
   <script>
-    // Sample product data (in production, pull this from Gun/Pouch/Couch or query string)
-    const product = {
-      id: "macx-cream-001",
-      image: "https://via.placeholder.com/300x300.png?text=MACX+Iconic+Cream",
-      name: "MACX Iconic Face Cream",
-      description: "Sculpts and defines your facial features with peptides and luxe hydration.",
-      usage: "Apply daily on clean face in upward strokes.",
-      warning: "Avoid eye contact. Patch test recommended.",
-      note: "Results may vary by skin type.",
-      ingredients: "Peptides, Aloe Vera, Vitamin E, Silk Extract",
-      price: 2500,
-      available: true,
-      views: 305
-    };
-
-    const container = document.getElementById('productCard');
-
-    function renderProductCard(product) {
-      const card = `
-        <div class="product-card">
-          <img src="${product.image}" alt="${product.name}" />
-          <h2>${product.name}</h2>
-          <p><strong>Description:</strong> ${product.description}</p>
-          <p><strong>Usage:</strong> ${product.usage}</p>
-          <p><strong>Warning:</strong> ${product.warning}</p>
-          <p><strong>Note:</strong> ${product.note}</p>
-          <p><strong>Ingredients:</strong> ${product.ingredients}</p>
-          <p><strong>Views:</strong> ${product.views}</p>
-          <p><strong>Price:</strong> ₹${product.price}</p>
-          <p><strong>Status:</strong> ${product.available ? "Available" : "Unavailable"}</p>
-          <label for="currencySelect">Select Currency:</label>
-          <select id="currencySelect">
-            <option value="INR">INR</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-          </select>
-          <button onclick="addToCart('${product.id}')">Add to Cart</button>
-        </div>
-      `;
-      container.innerHTML = card;
+    const id = new URLSearchParams(location.search).get("id");
+    gun.get("products").get(id).once(p => {
+      if (p) {
+        product.innerHTML = `<h1>${p.name}</h1><img src="${p.image}" width="200"><p>${p.description}</p><p>Usage: ${p.usage}</p><p>Warning: ${p.warning}</p><p>Price: ₹${p.price}</p>`;
+      }
+    });
+    function addToCart() {
+      gun.get("users").get(currentUser).get("cart").get(id).put({ productId: id, qty: 1 });
+      alert("Added to cart");
     }
-
-    // Load product
-    renderProductCard(product);
   </script>
 </body>
 </html>
