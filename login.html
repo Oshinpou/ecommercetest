@@ -1,50 +1,30 @@
+<!-- FILE: login.html -->
 <!DOCTYPE html>
 <html>
-<head>
-  <title>MACX Marketplace - Login</title>
-  <link rel="stylesheet" href="styles.css">
-<style>
-  body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-}
-.auth-container {
-  max-width: 400px;
-  margin: auto;
-  padding: 20px;
-  background: white;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  margin-top: 100px;
-}
-input, button {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
-  padding: 10px;
-}
-</style>
-
-</head>
+<head><title>Login</title></head>
 <body>
-  <div class="auth-container">
-    <h2>Login to MACX</h2>
-    <input type="text" id="loginEmail" placeholder="Email" />
-    <input type="password" id="loginPassword" placeholder="Password" />
-    <button onclick="login()">Login</button>
-
-    <h2>Create Account</h2>
-    <input type="text" id="signupEmail" placeholder="Email" />
-    <input type="password" id="signupPassword" placeholder="Password" />
-    <button onclick="signup()">Sign Up</button>
-
-    <h2>Recover Password</h2>
-    <input type="text" id="recoverEmail" placeholder="Your Email" />
-    <button onclick="recoverPassword()">Recover</button>
-  </div>
-
+  <form onsubmit="login(event)">
+    <input id="uid" placeholder="Username"><br>
+    <input id="upass" placeholder="Password"><br>
+    <button>Login</button>
+  </form>
+  <button onclick="signup()">Signup</button>
   <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.2.2/dist/pouchdb.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pouchdb-authentication@1.1.3/dist/pouchdb.authentication.min.js"></script>
-  <script src="data.js"></script>
+  <script>
+    const gun = Gun();
+    function login(e) {
+      e.preventDefault();
+      gun.get("users").get(uid.value).once(u => {
+        if (u && u.pass === upass.value) {
+          localStorage.setItem("macx_user", uid.value);
+          location.href = "index.html";
+        } else alert("Invalid");
+      });
+    }
+    function signup() {
+      gun.get("users").get(uid.value).put({ pass: upass.value });
+      alert("Account created");
+    }
+  </script>
 </body>
 </html>
