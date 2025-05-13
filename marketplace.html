@@ -1,0 +1,21 @@
+<!-- FILE: marketplace.html -->
+<!DOCTYPE html>
+<html>
+<head><title>Marketplace</title></head>
+<body>
+  <div id="market"></div>
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  <script src="data.js"></script>
+  <script>
+    gun.get("products").map().once(p => {
+      if (!p || !p.id) return;
+      market.innerHTML += `
+        <div>
+          <img src="${p.image}" width="100"><h2>${p.name}</h2>
+          <p>${p.description}</p><p>Price: ₹${p.price}</p>
+          <a href="product.html?id=${p.id}">View</a>
+        </div><hr>`;
+    });
+  </script>
+</body>
+</html>
