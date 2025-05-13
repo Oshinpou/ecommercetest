@@ -68,7 +68,21 @@ export const saveData = (type, data) => {
 }
 
 /** Product Card Generator */
-export const generateProductCard = ({ id, name, desc, usage, warning, ingredients, price, image, reviews, views, currency }) => {
+export const generateProductCard = ({
+  id,
+  name,
+  desc,
+  usage,
+  warning,
+  ingredients,
+  price,
+  image,
+  reviews,
+  views,
+  currency,
+  category,
+  subcategory
+}) => {
   return {
     id,
     name,
@@ -81,10 +95,14 @@ export const generateProductCard = ({ id, name, desc, usage, warning, ingredient
     reviews,
     views,
     currency,
+    category,       // e.g., "Clothing"
+    subcategory,    // e.g., "Tops for Girls"
     url: `view-product.html?id=${id}`,
     token: `${name}-${id}`.replace(/\s+/g, '-')
   }
 }
+
+export const categoryOptions = { 'Clothing': [ 'Shirts for Men', 'Tops for Women', 'Dresses for Girls', 'Pants for Boys', 'Newborn Bodysuits', 'Jackets for Women', 'Ethnic Wear', 'Sleepwear', 'Activewear', 'Jeans', 'Skirts', 'Suits', 'Sarees', 'Kurtas', 'Leggings', 'Shorts', 'Blazers', 'Innerwear', 'Swimwear', 'Winterwear', 'Denim Jackets', 'Crop Tops', 'Tracksuits', 'Maternity Wear', 'Vests' ], 'Cosmetics': [ 'Face Creams', 'Serums', 'Shampoos', 'Hair Oils', 'Lip Balms', 'Face Wash', 'Toners', 'Moisturizers', 'Body Lotions', 'Sunscreens', 'Cleansers', 'Makeup Removers', 'Lipsticks', 'Eyeliners', 'Blushes', 'Highlighters', 'Compact Powders', 'Face Masks', 'Conditioners', 'Peels' ], 'Electronics': [ 'Mobile Phones', 'Earbuds', 'Chargers', 'Laptops', 'Monitors', 'Smart Watches', 'Cameras', 'Speakers', 'Bluetooth Devices', 'Power Banks', 'Gaming Consoles', 'Headphones', 'Projectors', 'Routers', 'Printers', 'Tablets', 'Smart TVs', 'Memory Cards', 'Hard Drives', 'VR Headsets' ], 'Furniture': [ 'Sofas', 'Beds', 'Dining Tables', 'Chairs', 'Wardrobes', 'Bookshelves', 'TV Units', 'Coffee Tables', 'Shoe Racks', 'Office Desks', 'Bean Bags', 'Side Tables', 'Stools', 'Cupboards', 'Vanity Tables', 'Study Tables', 'Recliners', 'Dressers', 'Mattresses', 'Cribs' ], 'Accessories': [ 'Watches', 'Bags', 'Belts', 'Wallets', 'Sunglasses', 'Hats', 'Scarves', 'Keychains', 'Phone Cases', 'Jewelry Sets', 'Bracelets', 'Earrings', 'Necklaces', 'Hair Accessories', 'Rings', 'Brooches', 'Anklets', 'Travel Pouches', 'Luggage Tags', 'Caps' ], 'Footwear': [ 'Sneakers', 'Formal Shoes', 'Casual Shoes', 'Sandals', 'Flip Flops', 'Heels', 'Boots', 'Slippers', 'Sports Shoes', 'Loafers', 'Ballet Flats', 'School Shoes', 'Wedges', 'Derby Shoes', 'Crocs', 'Running Shoes', 'Ethnic Footwear', 'Kids Footwear', 'Moccasins', 'Kolhapuris' ], 'Jewelry': [ 'Earrings', 'Necklaces', 'Bracelets', 'Rings', 'Anklets', 'Bangles', 'Nose Pins', 'Chokers', 'Toe Rings', 'Maang Tikka', 'Hair Pins', 'Brooches', 'Chains', 'Pendants', 'Cufflinks', 'Gemstone Jewelry', 'Pearl Jewelry', 'Gold Plated', 'Silver Jewelry', 'Fashion Sets' ], 'Home Decor': [ 'Wall Art', 'Lamps', 'Candles', 'Rugs', 'Curtains', 'Photo Frames', 'Vases', 'Mirrors', 'Planters', 'Clocks', 'Showpieces', 'Table Decor', 'Cushions', 'Storage Boxes', 'Decorative Lights', 'Room Dividers', 'Wall Stickers', 'Artificial Plants', 'Tapestries', 'Name Plates' ], 'Toys & Games': [ 'Board Games', 'Puzzles', 'Soft Toys', 'Action Figures', 'Educational Toys', 'Remote Control Toys', 'Dolls', 'Outdoor Play', 'Musical Toys', 'Ride-ons', 'Blocks', 'Building Sets', 'Craft Kits', 'Robots', 'Cards', 'Kites', 'Balloons', 'Toy Vehicles', 'Marbles', 'Learning Tablets' ], 'Luxury': [ 'Designer Bags', 'Luxury Watches', 'Gold Jewelry', 'Platinum Rings', 'Silk Scarves', 'Cashmere Coats', 'High-End Shoes', 'Luxury Perfumes', 'Limited Edition Collectibles', 'Designer Sunglasses', 'Luxury Skincare', 'Diamond Earrings', 'Premium Furniture', 'Luxury Chocolates', 'Satin Bedsheets', 'Crystal Showpieces', 'Gourmet Hampers', 'High-End Headphones', 'Luxury Pens', 'Exclusive Decor' ] };
 
 /** Cart Management */
 export const addToCart = (product) => {
