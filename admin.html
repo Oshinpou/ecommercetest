@@ -10,6 +10,11 @@
 </head>
 <body class="p-4">
   <h1 class="mb-4">Bobomacx Admin Panel</h1>  <div class="mb-5">
+  <div style="margin-bottom: 20px;">
+  <input type="text" id="accountSearchInput" placeholder="Search by username, email, or phone..." style="padding: 8px; width: 300px;" />
+  <button onclick="searchAccount()" style="padding: 8px;">Search</button>
+</div>
+<div id="searchResults" style="margin-top: 20px;"></div>
     <h3>Accounts Created</h3>
     <table class="table table-bordered" id="accountsTable">
       <thead>
@@ -76,5 +81,58 @@
       alert("Account and all associated data permanently deleted.");
       location.reload();
     }
+
+  async function searchAccount() {
+    const query = document.getElementById('accountSearchInput').value.trim().toLowerCase();
+    const resultsContainer = document.getElementById('searchResults');
+    resultsContainer.innerHTML = "Searching...";
+
+    if (!query) {
+      resultsContainer.innerHTML = "Please enter a search term.";
+      return;
+    }
+
+    try {
+      const matchedAccounts = [];
+
+      // Assume Gun is initialized as `gun`
+      const accountsNode = gun.get('bobomacx').get('accounts');
+
+      accountsNode.map().once((data, key) => {
+        if (data) {
+          const username = (data.username || "").toLowerCase();
+          const email = (data.email || "").toLowerCase();
+          const phone = (data.phone || "").toLowerCase();
+
+          if (username.includes(query) || email.includes(query) || phone.includes(query)) {
+            matchedAccounts.push({ key, ...data });
+          }
+        }
+
+        // Display after short delay to gather all map results
+        setTimeout(() => {
+          if (matchedAccounts.length === 0) {
+            resultsContainer.innerHTML = "No matching accounts found.";
+            return;
+          }
+
+          const html = matchedAccounts.map(account => `
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+              <strong>Username:</strong> ${account.username || 'N/A'}<br>
+              <strong>Email:</strong> ${account.email || 'N/A'}<br>
+              <strong>Phone:</strong> ${account.phone || 'N/A'}<br>
+              <strong>Created:</strong> ${account.createdAt || 'N/A'}
+            </div>
+          `).join("");
+
+          resultsContainer.innerHTML = html;
+        }, 500);
+      });
+
+    } catch (err) {
+      console.error("Search error:", err);
+      resultsContainer.innerHTML = "Error occurred while searching.";
+    }
+  }
   </script></body>
   </html>
