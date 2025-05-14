@@ -277,3 +277,76 @@ if (currencyOptions.includes(currency)) {
 }
 
 export const getCurrency = () => selectedCurrency
+
+/** Update Account Password */
+export const updatePassword = async (newPassword) => {
+  if (!currentUser) return
+  gun.get('accounts').get(currentUser).once(async data => {
+    const decrypted = await auth.decrypt(data.password, data)
+    if (decrypted) {
+      const pair = { pub: data.pub, epub: data.epub }
+      const encrypted = await auth.encrypt(newPassword, pair)
+      gun.get('accounts').get(currentUser).put({ password: encrypted })
+      notify('Password updated successfully')
+    }
+  })
+}
+
+/** Delete User Account */
+export const deleteAccount = () => {
+  if (!currentUser) return
+  gun.get('accounts').get(currentUser).put(null)
+  gun.get('data').get(currentUser).put(null)
+  logoutAccount()
+  notify('Account deleted permanently')
+}
+
+/** Toggle Favorites */
+export const toggleFavorite = (id) => {
+  if (!userData.favorites) userData.favorites = []
+  const index = userData.favorites.indexOf(id)
+  if (index > -1) {
+    userData.favorites.splice(index, 1)
+  } else {
+    userData.favorites.push(id)
+  }
+  saveData('favorites', { items: userData.favorites })
+}
+
+/** Set Default Currency */
+export const setCurrency = (currency) => {
+  if (!currencyOptions.includes(currency)) return
+  selectedCurrency = currency
+  localStorage.setItem('bobomacx_currency', currency)
+  notify(`Currency set to ${currency}`)
+}
+
+/** Get Selected Currency */
+export const getCurrency = () => {
+  return selectedCurrency || 'INR'
+}
+
+/** Initialize Local Currency from Storage */
+(() => {
+  const storedCurrency = localStorage.getItem('bobomacx_currency')
+  if (storedCurrency && currencyOptions.includes(storedCurrency)) {
+    selectedCurrency = storedCurrency
+  } else {
+    selectedCurrency = 'INR'
+  }
+})()
+
+/** Generate Unique Order ID */
+export const generateOrderId = () => {
+  const timestamp = Date.now().toString(36)
+  const random = Math.random().toString(36).substr(2, 5)
+  return `ORD-${timestamp}-${random}`.toUpperCase()
+}
+
+/** Filter Products by Category */
+export const filterProducts = (category, subcategory, products) => {
+  return products.filter(p =>
+    (!category || p.category === category) &&
+    (!subcategory || p.subcategory === subcategory)
+  )
+}
