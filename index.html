@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MACX Marketplace</title>
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pouchdb/dist/pouchdb.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>MACX Marketplace</h1>
+    <button id="loginRedirect">Login</button>
+    <span id="accountIcon" title="Account">&#128100;</span>
+  </header>  <section id="accountSection" style="display: none;">
+    <h2>Account Details</h2>
+    <div id="accountDetails"></div>
+    <h3>Manage Account</h3>
+    <form id="updateAccountForm">
+      <label>Username: <input type="text" id="updateUsername"></label><br>
+      <label>Email: <input type="email" id="updateEmail"></label><br>
+      <label>Phone: <input type="tel" id="updatePhone"></label><br>
+      <label>New Password: <input type="password" id="updatePassword"></label><br>
+      <button type="submit">Update Account</button>
+    </form>
+    <p id="updateStatus"></p><button id="deleteAccountBtn">Delete Account Permanently</button>
+<p id="deleteStatus"></p>
+<button id="logoutBtn">Logout</button>
+
+  </section>  <script>
+    const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
+    const SEA = Gun.SEA;
+    let user = gun.user();
+
+    document.getElementById('loginRedirect').onclick = () => {
+      location.href = 'login.html';
+    };
+
+    document.getElementById('accountIcon').onclick = () => {
+      const section = document.getElementById('accountSection');
+      section.style.display = section.style.display === 'none' ? 'block' : 'none';
+      loadAccountDetails();
+    };
+
+    function loadAccountDetails() {
+      user.get('profile').once(data => {
+        if (!data) return;
+        document.getElementById('accountDetails').innerHTML = `
+          <p><strong>Username:</strong> ${data.username}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Phone:</strong> ${data.phone}</p>
+          <p><strong>Created:</strong> ${data.createdAt}</p>
+        `;
+      });
+    }
+
+    document.getElementById('updateAccountForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('updateUsername').value;
+      const email = document.getElementById('updateEmail').value;
+      const phone = document.getElementById('updatePhone').value;
+      const password = document.getElementById('updatePassword').value;
+
+      try {
+        if (username) await user.get('profile').get('username').put(username);
+        if (email) await user.get('profile').get('email').put(email);
+        if (phone) await user.get('profile').get('phone').put(phone);
+        if (password) {
+          const pair = await SEA.pair();
+          await user.auth(user._.sea.pub, password);
+        }
+        document.getElementById('updateStatus').innerText = 'Account updated successfully!';
+        loadAccountDetails();
+      } catch (err) {
+        document.getElementById('updateStatus').innerText = 'Error updating account';
+      }
+    };
+
+    document.getElementById('deleteAccountBtn').onclick = () => {
+      const confirmDelete = confirm('Are you sure? This action requires 7 confirmations.');
+      let count = 1;
+      const interval = setInterval(() => {
+        if (count === 7) {
+          user.delete();
+          document.getElementById('deleteStatus').innerText = 'Account permanently deleted';
+          clearInterval(interval);
+        } else {
+          confirm(`Confirm ${count}/7: Are you sure?`);
+          count++;
+        }
+      }, 1000);
+    };
+
+    document.getElementById('logoutBtn').onclick = () => {
+      user.leave();
+      localStorage.clear();
+      location.href = 'login.html';
+    };
+
+    if (localStorage.getItem('gun/username')) {
+      user.recall({ sessionStorage: true });
+    }
+  </script></body>
+</html>
