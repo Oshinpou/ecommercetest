@@ -1,30 +1,127 @@
-<!-- FILE: login.html -->
-<!DOCTYPE html>
-<html>
-<head><title>Login</title></head>
-<body>
-  <form onsubmit="login(event)">
-    <input id="uid" placeholder="Username"><br>
-    <input id="upass" placeholder="Password"><br>
-    <button>Login</button>
-  </form>
-  <button onclick="signup()">Signup</button>
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login / Signup - Bobomacx</title>
   <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.2.1/dist/pouchdb.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    form { margin-bottom: 20px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    input, select { display: block; margin-bottom: 10px; width: 100%; padding: 8px; }
+    button { padding: 10px 20px; cursor: pointer; }
+    .message { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h2>Signup</h2>
+  <form id="signupForm">
+    <input type="text" id="signupUsername" placeholder="Username" required />
+    <input type="email" id="signupEmail" placeholder="Email" required />
+    <input type="tel" id="signupPhone" placeholder="Phone Number" required />
+    <select id="countryCode">
+      <option value="+91">+91 India</option>
+      <option value="+1">+1 USA</option>
+      <option value="+44">+44 UK</option>
+      <!-- Add more country codes as needed -->
+    </select>
+    <input type="password" id="signupPassword" placeholder="Password" required />
+    <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required />
+    <button type="submit">Create Account</button>
+    <div id="signupMessage"></div>
+  </form>  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="text" id="loginUsername" placeholder="Username" required />
+    <input type="password" id="loginPassword" placeholder="Password" required />
+    <button type="submit">Login</button>
+    <div id="loginMessage"></div>
+  </form>  <h3>Recover Password</h3>
+  <form id="recoverPasswordForm">
+    <input type="text" id="recoverUsername" placeholder="Username" required />
+    <input type="email" id="recoverEmail" placeholder="Email" required />
+    <input type="tel" id="recoverPhone" placeholder="Phone" required />
+    <button type="submit">Recover Password</button>
+    <div id="recoverPasswordMessage"></div>
+  </form>  <h3>Recover Username</h3>
+  <form id="recoverUsernameForm">
+    <input type="email" id="usernameEmail" placeholder="Email" required />
+    <input type="tel" id="usernamePhone" placeholder="Phone" required />
+    <input type="password" id="knownPassword" placeholder="Known Password" required />
+    <button type="submit">Recover Username</button>
+    <div id="recoverUsernameMessage"></div>
+  </form><button onclick="logout()">Logout</button> <button onclick="history.back()">Back</button>
+
   <script>
     const gun = Gun();
-    function login(e) {
+    const SEA = Gun.SEA;
+    const db = new PouchDB('bobomacx');
+    const user = gun.user();
+
+    const ISTOffset = 5.5 * 60 * 60 * 1000;
+
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      gun.get("users").get(uid.value).once(u => {
-        if (u && u.pass === upass.value) {
-          localStorage.setItem("macx_user", uid.value);
-          location.href = "index.html";
-        } else alert("Invalid");
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const phone = signupPhone.value.trim();
+      const code = countryCode.value;
+      const password = signupPassword.value;
+      const confirm = signupConfirmPassword.value;
+      const createdAt = new Date(Date.now() + ISTOffset).toISOString();
+
+      if (password !== confirm) return signupMessage.textContent = 'Passwords do not match';
+
+      user.create(username, password, async (ack) => {
+        if (ack.err) return signupMessage.textContent = ack.err;
+
+        user.auth(username, password, async () => {
+          const accountData = {
+            email,
+            phone: `${code} ${phone}`,
+            createdAt
+          };
+          gun.get('bobomacx').get('accounts').get(username).put(accountData);
+          await db.put({ _id: username, ...accountData });
+          signupMessage.textContent = 'Account created successfully!';
+        });
       });
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = loginUsername.value.trim();
+      const password = loginPassword.value;
+      user.auth(username, password, (ack) => {
+        if (ack.err) return loginMessage.textContent = ack.err;
+        localStorage.setItem('bobomacxSession', JSON.stringify({ username }));
+        loginMessage.textContent = 'Login successful!';
+      });
+    });
+
+    document.getElementById('recoverPasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      recoverPasswordMessage.textContent = 'Feature not implemented. Manual admin intervention required.';
+    });
+
+    document.getElementById('recoverUsernameForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      recoverUsernameMessage.textContent = 'Feature not implemented. Manual admin intervention required.';
+    });
+
+    function logout() {
+      user.leave();
+      localStorage.removeItem('bobomacxSession');
+      alert('Logged out successfully');
     }
-    function signup() {
-      gun.get("users").get(uid.value).put({ pass: upass.value });
-      alert("Account created");
-    }
-  </script>
-</body>
-</html>
+
+    window.onload = () => {
+      const session = JSON.parse(localStorage.getItem('bobomacxSession'));
+      if (session && session.username) {
+        // Optionally auto-authenticate with saved credentials or JWT
+        console.log('Session found for:', session.username);
+      }
+    };
+  </script></body>
+  </html>
