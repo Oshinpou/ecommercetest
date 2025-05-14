@@ -350,3 +350,52 @@ export const filterProducts = (category, subcategory, products) => {
     (!subcategory || p.subcategory === subcategory)
   )
 }
+
+/** View Counter */
+export const incrementProductView = (id) => {
+  if (!userData.views) userData.views = {}
+  userData.views[id] = (userData.views[id] || 0) + 1
+  saveData('views', userData.views)
+}
+
+/** Review Management */
+export const addReview = (productId, review) => {
+  if (!userData.reviews) userData.reviews = {}
+  if (!userData.reviews[productId]) userData.reviews[productId] = []
+  userData.reviews[productId].push({ ...review, time: Date.now() })
+  saveData('reviews', userData.reviews)
+}
+
+/** Promote Post / Product */
+export const promoteItem = (type, id, details) => {
+  if (!userData.promotions) userData.promotions = []
+  userData.promotions.push({ type, id, details, promotedAt: Date.now() })
+  saveData('promotions', { list: userData.promotions })
+}
+
+/** Delete Account */
+export const deleteAccount = () => {
+  if (!currentUser) return
+  gun.get('accounts').get(currentUser).put(null)
+  gun.get('data').get(currentUser).put(null)
+  db.destroy().then(() => {
+    logoutAccount()
+  })
+}
+
+/** Backup All User Data */
+export const exportUserData = () => {
+  return JSON.stringify(userData, null, 2)
+}
+
+/** Import All User Data */
+export const importUserData = (json) => {
+  try {
+    const data = JSON.parse(json)
+    Object.keys(data).forEach(key => {
+      saveData(key, data[key])
+    })
+  } catch (err) {
+    console.error('Invalid JSON:', err)
+  }
+}
