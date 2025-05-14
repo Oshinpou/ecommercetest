@@ -269,3 +269,11 @@ export const addSearchTerm = (term) => {
   userData.searchHistory = userData.searchHistory.slice(0, 20)
   saveData('searchHistory', { terms: userData.searchHistory })
 }
+
+if (currencyOptions.includes(currency)) {
+    selectedCurrency = currency
+    localStorage.setItem('bobomacx_currency', currency)
+  }
+}
+
+export const getCurrency = () => selectedCurrency
