@@ -1,7 +1,8 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login / Signup - Bobomacx</title>
   <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
@@ -30,13 +31,17 @@
     <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required />
     <button type="submit">Create Account</button>
     <div id="signupMessage"></div>
-  </form>  <h2>Login</h2>
+  </form>
+
+  <h2>Login</h2>
   <form id="loginForm">
     <input type="text" id="loginUsername" placeholder="Username" required />
     <input type="password" id="loginPassword" placeholder="Password" required />
     <button type="submit">Login</button>
     <div id="loginMessage"></div>
-  </form>  <h2>Recover Password</h2>
+  </form>
+
+  <h2>Recover Password</h2>
   <form id="recoverPasswordForm">
     <input type="text" id="recoverUsername" placeholder="Username" required />
     <input type="email" id="recoverEmail" placeholder="Email" required />
@@ -48,7 +53,9 @@
     </select>
     <button type="submit">Recover Password</button>
     <div id="recoverPasswordMessage"></div>
-  </form>  <h2>Recover Username</h2>
+  </form>
+
+  <h2>Recover Username</h2>
   <form id="recoverUsernameForm">
     <input type="email" id="usernameEmail" placeholder="Email" required />
     <input type="tel" id="usernamePhone" placeholder="Phone Number" required />
@@ -60,9 +67,13 @@
     </select>
     <button type="submit">Recover Username</button>
     <div id="recoverUsernameMessage"></div>
-  </form>  <div id="status"></div>
-  <button onclick="logout()">Logout</button>  <script>
-    const gun = Gun();
+  </form>
+
+  <div id="status"></div>
+  <button onclick="logout()">Logout</button>
+
+  <script>
+    const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
     const db = new PouchDB('bobomacx');
     const user = gun.user();
     const ISTOffset = 5.5 * 60 * 60 * 1000;
@@ -77,19 +88,34 @@
       if (!session) return setStatus("You're not logged in", 'red');
       user.leave();
       localStorage.removeItem('bobomacxSession');
+      gun.get('bobomacx').get('sessions').get(JSON.parse(session).username).put({ active: false });
       setStatus("Logged out successfully");
     }
 
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = signupUsername.value.trim();
-      const email = signupEmail.value.trim();
+      const email = signupEmail.value.trim().toLowerCase();
       const phone = signupPhone.value.trim();
       const code = countryCode.value;
       const password = signupPassword.value;
       const confirm = signupConfirmPassword.value;
       const createdAt = new Date(Date.now() + ISTOffset).toISOString();
+
       if (password !== confirm) return signupMessage.textContent = 'Passwords do not match';
+
+      // Check for duplicate phone number with same country code
+      let duplicatePhone = false;
+      let duplicateEmail = false;
+      await gun.get('bobomacx').get('accounts').map().once((data) => {
+        if (data) {
+          if (data.phone === `${code} ${phone}`) duplicatePhone = true;
+          if (data.email.toLowerCase() === email) duplicateEmail = true;
+        }
+      });
+
+      if (duplicatePhone) return signupMessage.textContent = 'Phone number already in use with this country code';
+      if (duplicateEmail) return signupMessage.textContent = 'Email already registered';
 
       user.create(username, password, async (ack) => {
         if (ack.err) return signupMessage.textContent = ack.err;
@@ -120,6 +146,7 @@
         user.auth(username, password, (ack) => {
           if (ack.err) return loginMessage.textContent = ack.err;
           localStorage.setItem('bobomacxSession', JSON.stringify({ username, id: user.is.pub }));
+          gun.get('bobomacx').get('sessions').get(username).put({ active: true, lastLogin: new Date().toISOString() });
           loginMessage.textContent = 'Login successful';
           setStatus(`Logged in as ${username} (${user.is.pub})`);
         });
@@ -129,12 +156,12 @@
     document.getElementById('recoverPasswordForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const userId = recoverUsername.value;
-      const email = recoverEmail.value;
+      const email = recoverEmail.value.toLowerCase();
       const phone = `${recoverCountryCode.value} ${recoverPhone.value}`;
 
       gun.get('bobomacx').get('accounts').get(userId).once(data => {
         if (!data) return recoverPasswordMessage.textContent = 'User not found';
-        if (data.email === email && data.phone === phone) {
+        if (data.email.toLowerCase() === email && data.phone === phone) {
           recoverPasswordMessage.textContent = 'Password: ' + data.password;
         } else {
           recoverPasswordMessage.textContent = 'Information does not match';
@@ -144,13 +171,13 @@
 
     document.getElementById('recoverUsernameForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = usernameEmail.value;
+      const email = usernameEmail.value.toLowerCase();
       const phone = `${recoverUsernameCountryCode.value} ${usernamePhone.value}`;
       const password = knownPassword.value;
 
-      gun.get('bobomacx').get('accounts').map().once(data => {
-        if (data.email === email && data.phone === phone && data.password === password) {
-          recoverUsernameMessage.textContent = 'Username: ' + data._['#'].split('/')[2];
+      gun.get('bobomacx').get('accounts').map().once((data, key) => {
+        if (data && data.email.toLowerCase() === email && data.phone === phone && data.password === password) {
+          recoverUsernameMessage.textContent = 'Username: ' + key;
         }
       });
     });
@@ -158,14 +185,16 @@
     window.onload = () => {
       const session = JSON.parse(localStorage.getItem('bobomacxSession'));
       if (session && session.username) {
-        gun.get('bobomacx').get('accounts').get(session.username).once((data) => {
-          if (data) {
-            setStatus(`Logged in as ${session.username} (${session.id}) - Created: ${data.createdAt}`);
+        gun.get('bobomacx').get('sessions').get(session.username).once((s) => {
+          if (s && s.active) {
+            setStatus(`Active session for ${session.username} (${session.id})`);
+          } else {
+            setStatus("Session expired or inactive. Please login again.", 'red');
+            localStorage.removeItem('bobomacxSession');
           }
         });
-      } else {
-        setStatus('You are not logged in', 'red');
       }
     };
-  </script></body>
-    </html>
+  </script>
+</body>
+</html>
