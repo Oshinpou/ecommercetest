@@ -1,42 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Bobomacx Background Image</title>
+  <title>Check PouchDB Token</title>
   <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      background-color: #000;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
-  </style>
 </head>
 <body>
-  <h1>Bobomacx Background Loaded</h1>
+  <h2>Token Check: 0d09zu</h2>
+  <div id="output">Checking...</div>
 
   <script>
-    const token = "0d09zu";
     const db = new PouchDB('bobomacx-stock');
-
-    db.find({ selector: { token } }).then(result => {
+    db.find({ selector: { token: "0d09zu" } }).then(result => {
+      const output = document.getElementById('output');
       if (result.docs.length === 0) {
-        document.body.innerHTML = "<h2>Image not found for token.</h2>";
-        return;
+        output.textContent = "Image not found in this browser's PouchDB.";
+      } else {
+        output.innerHTML = "Image found!<br><img src='" + result.docs[0].image + "' style='max-width:300px;'>";
       }
-
-      const imageData = result.docs[0].image;
-      document.body.style.backgroundImage = `url('${imageData}')`;
     }).catch(err => {
-      document.body.innerHTML = `<h2>Error: ${err.message}</h2>`;
+      document.getElementById('output').textContent = "Error: " + err.message;
     });
   </script>
 </body>
