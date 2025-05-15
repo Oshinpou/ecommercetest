@@ -1,18 +1,18 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login / Signup - Bobomacx</title>
   <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.2.1/dist/pouchdb.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-    form { margin-bottom: 20px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-    input, select { display: block; margin-bottom: 10px; width: 100%; padding: 8px; }
-    button { padding: 10px 20px; cursor: pointer; }
-    .message { color: green; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    form { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    input, select, button { display: block; width: 100%; padding: 10px; margin: 10px 0; }
     .error { color: red; }
+    .success { color: green; }
+    #status { font-weight: bold; }
   </style>
 </head>
 <body>
@@ -36,11 +36,11 @@
     <input type="password" id="loginPassword" placeholder="Password" required />
     <button type="submit">Login</button>
     <div id="loginMessage"></div>
-  </form>  <h3>Recover Password</h3>
+  </form>  <h2>Recover Password</h2>
   <form id="recoverPasswordForm">
     <input type="text" id="recoverUsername" placeholder="Username" required />
     <input type="email" id="recoverEmail" placeholder="Email" required />
-    <input type="tel" id="recoverPhone" placeholder="Phone" required />
+    <input type="tel" id="recoverPhone" placeholder="Phone Number" required />
     <select id="recoverCountryCode">
       <option value="+91">+91 India</option>
       <option value="+1">+1 USA</option>
@@ -48,95 +48,124 @@
     </select>
     <button type="submit">Recover Password</button>
     <div id="recoverPasswordMessage"></div>
-  </form>  <h3>Recover Username</h3>
+  </form>  <h2>Recover Username</h2>
   <form id="recoverUsernameForm">
     <input type="email" id="usernameEmail" placeholder="Email" required />
-    <input type="tel" id="usernamePhone" placeholder="Phone" required />
-    <select id="usernameCountryCode">
+    <input type="tel" id="usernamePhone" placeholder="Phone Number" required />
+    <input type="password" id="knownPassword" placeholder="Known Password" required />
+    <select id="recoverUsernameCountryCode">
       <option value="+91">+91 India</option>
       <option value="+1">+1 USA</option>
       <option value="+44">+44 UK</option>
     </select>
-    <input type="password" id="knownPassword" placeholder="Known Password" required />
     <button type="submit">Recover Username</button>
     <div id="recoverUsernameMessage"></div>
-  </form>  <div id="statusSection"></div>
-  <button onclick="logout()">Logout</button>
-  <button onclick="history.back()">Back</button><script>
-  const gun = Gun();
-  const SEA = Gun.SEA;
-  const db = new PouchDB('bobomacx');
-  const user = gun.user();
+  </form>  <div id="status"></div>
+  <button onclick="logout()">Logout</button>  <script>
+    const gun = Gun();
+    const db = new PouchDB('bobomacx');
+    const user = gun.user();
+    const ISTOffset = 5.5 * 60 * 60 * 1000;
 
-  function getMumbaiTime() {
-    const offsetIST = 5.5 * 60 * 60 * 1000;
-    return new Date(Date.now() + offsetIST).toISOString();
-  }
+    function setStatus(msg, color='green') {
+      document.getElementById('status').textContent = msg;
+      document.getElementById('status').style.color = color;
+    }
 
-  const session = JSON.parse(localStorage.getItem('bobomacxSession'));
-  const statusSection = document.getElementById('statusSection');
-  if (session && session.username) {
-    gun.get('bobomacx').get('accounts').get(session.username).once(data => {
-      statusSection.innerHTML = `<p class="message">Logged in as ${session.username}<br>Email: ${data.email}<br>Phone: ${data.phone}<br>Created At (IST): ${data.createdAt}</p>`;
-    });
-  } else {
-    statusSection.innerHTML = '<p class="error">You are not logged in.</p>';
-  }
+    function logout() {
+      const session = localStorage.getItem('bobomacxSession');
+      if (!session) return setStatus("You're not logged in", 'red');
+      user.leave();
+      localStorage.removeItem('bobomacxSession');
+      setStatus("Logged out successfully");
+    }
 
-  document.getElementById('signupForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = signupUsername.value.trim();
-    const email = signupEmail.value.trim();
-    const phone = signupPhone.value.trim();
-    const code = countryCode.value;
-    const password = signupPassword.value;
-    const confirm = signupConfirmPassword.value;
-    const createdAt = getMumbaiTime();
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = signupUsername.value.trim();
+      const email = signupEmail.value.trim();
+      const phone = signupPhone.value.trim();
+      const code = countryCode.value;
+      const password = signupPassword.value;
+      const confirm = signupConfirmPassword.value;
+      const createdAt = new Date(Date.now() + ISTOffset).toISOString();
+      if (password !== confirm) return signupMessage.textContent = 'Passwords do not match';
 
-    if (password !== confirm) return signupMessage.textContent = 'Passwords do not match';
+      user.create(username, password, async (ack) => {
+        if (ack.err) return signupMessage.textContent = ack.err;
 
-    user.create(username, password, async (ack) => {
-      if (ack.err) return signupMessage.textContent = ack.err;
+        gun.get('bobomacx').get('accounts').get(username).put({
+          email, phone: `${code} ${phone}`, createdAt, password,
+          status: 'active', deleted: false
+        });
 
-      user.auth(username, password, async () => {
-        const accountData = { email, phone: `${code} ${phone}`, createdAt };
-        gun.get('bobomacx').get('accounts').get(username).put(accountData);
-        await db.put({ _id: username, ...accountData });
+        await db.put({ _id: username, email, phone: `${code} ${phone}`, password, createdAt });
+
         signupMessage.textContent = 'Account created successfully!';
-        localStorage.setItem('bobomacxSession', JSON.stringify({ username }));
-        location.reload();
       });
     });
-  });
 
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (session && session.username) return loginMessage.textContent = 'You are already logged in';
-    const username = loginUsername.value.trim();
-    const password = loginPassword.value;
-    user.auth(username, password, (ack) => {
-      if (ack.err) return loginMessage.textContent = ack.err;
-      localStorage.setItem('bobomacxSession', JSON.stringify({ username }));
-      loginMessage.textContent = 'Login successful!';
-      location.reload();
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = loginUsername.value.trim();
+      const password = loginPassword.value;
+
+      const session = JSON.parse(localStorage.getItem('bobomacxSession'));
+      if (session && session.username === username) return loginMessage.textContent = "You're already logged in";
+
+      gun.get('bobomacx').get('accounts').get(username).once((data) => {
+        if (!data || data.deleted) return loginMessage.textContent = 'Account not found or deleted';
+        if (data.status === 'deactivated') return loginMessage.textContent = 'Your account is deactivated';
+
+        user.auth(username, password, (ack) => {
+          if (ack.err) return loginMessage.textContent = ack.err;
+          localStorage.setItem('bobomacxSession', JSON.stringify({ username, id: user.is.pub }));
+          loginMessage.textContent = 'Login successful';
+          setStatus(`Logged in as ${username} (${user.is.pub})`);
+        });
+      });
     });
-  });
 
-  document.getElementById('recoverPasswordForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    recoverPasswordMessage.textContent = 'This requires manual admin reset.';
-  });
+    document.getElementById('recoverPasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userId = recoverUsername.value;
+      const email = recoverEmail.value;
+      const phone = `${recoverCountryCode.value} ${recoverPhone.value}`;
 
-  document.getElementById('recoverUsernameForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    recoverUsernameMessage.textContent = 'This requires manual admin lookup.';
-  });
+      gun.get('bobomacx').get('accounts').get(userId).once(data => {
+        if (!data) return recoverPasswordMessage.textContent = 'User not found';
+        if (data.email === email && data.phone === phone) {
+          recoverPasswordMessage.textContent = 'Password: ' + data.password;
+        } else {
+          recoverPasswordMessage.textContent = 'Information does not match';
+        }
+      });
+    });
 
-  function logout() {
-    user.leave();
-    localStorage.removeItem('bobomacxSession');
-    alert('Logged out successfully');
-    location.reload();
-  }
-</script></body>
-</html>
+    document.getElementById('recoverUsernameForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = usernameEmail.value;
+      const phone = `${recoverUsernameCountryCode.value} ${usernamePhone.value}`;
+      const password = knownPassword.value;
+
+      gun.get('bobomacx').get('accounts').map().once(data => {
+        if (data.email === email && data.phone === phone && data.password === password) {
+          recoverUsernameMessage.textContent = 'Username: ' + data._['#'].split('/')[2];
+        }
+      });
+    });
+
+    window.onload = () => {
+      const session = JSON.parse(localStorage.getItem('bobomacxSession'));
+      if (session && session.username) {
+        gun.get('bobomacx').get('accounts').get(session.username).once((data) => {
+          if (data) {
+            setStatus(`Logged in as ${session.username} (${session.id}) - Created: ${data.createdAt}`);
+          }
+        });
+      } else {
+        setStatus('You are not logged in', 'red');
+      }
+    };
+  </script></body>
+    </html>
