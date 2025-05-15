@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Image</title>
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+</head>
+<body>
+  <h2>Upload Image</h2>
+  <input type="file" id="fileInput" />
+  <button onclick="upload()">Upload</button>
+  <div id="result"></div>
+
+  <script>
+    const gun = Gun();
+
+    function generateToken(length = 6) {
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let token = '';
+      for (let i = 0; i < length; i++) {
+        token += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return token;
+    }
+
+    function upload() {
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) return alert("Select a file first.");
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const base64 = e.target.result;
+        const token = generateToken();
+
+        gun.get("images").get(token).put({ data: base64 });
+
+        document.getElementById("result").innerHTML = `
+          <p>Token: <strong>${token}</strong></p>
+          <p><a href="view.html?token=${token}" target="_blank">View Image</a></p>
+          <img src="${base64}" width="200" />
+        `;
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
