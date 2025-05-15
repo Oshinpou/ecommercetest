@@ -1,48 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Bobomacx Token Image Viewer</title>
-  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  <title>Bobomacx Image Viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 60px; }
-    img { max-width: 90%; border-radius: 10px; box-shadow: 0 0 10px #999; }
-    .token { margin-top: 10px; color: #333; font-size: 16px; }
-    .error { color: red; margin-top: 20px; }
+    body { font-family: sans-serif; padding: 20px; text-align: center; }
+    img { max-width: 100%; max-height: 500px; }
+    .token { margin-top: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h2>Bobomacx Token Access</h2>
-  <div id="imageBox"></div>
-  <div class="token" id="tokenMsg"></div>
-  <div class="error" id="errorMsg"></div>
 
-  <script>
-    const gun = Gun();
-    const token = new URLSearchParams(window.location.search).get('token');
-    const imageBox = document.getElementById('imageBox');
-    const tokenMsg = document.getElementById('tokenMsg');
-    const errorMsg = document.getElementById('errorMsg');
+<h2>Image by Token</h2>
+<div id="image-container"></div>
+<div id="error-message" style="color: red;"></div>
 
-    if (!token) {
-      errorMsg.textContent = "No token provided in URL.";
-    } else {
-      gun.get('bobomacx').map().once((data, key) => {
-        if (!data) return;
-        if (key.endsWith(token)) {
-          const img = document.createElement('img');
-          img.src = data;
-          imageBox.appendChild(img);
-          tokenMsg.textContent = "Token: " + token;
-        }
-      });
+<script>
+const db = new PouchDB('bobomacx-stock');
+const params = new URLSearchParams(window.location.search);
+const token = params.get('token');
+const errorMsg = document.getElementById("error-message");
 
-      setTimeout(() => {
-        if (!imageBox.innerHTML) {
-          errorMsg.textContent = "Image not found for token: " + token;
-        }
-      }, 2000);
+if (!token) {
+  errorMsg.textContent = "Error: No token provided in URL.";
+} else {
+  db.find({ selector: { token: token } }).then(result => {
+    if (result.docs.length === 0) {
+      errorMsg.textContent = "Image not found for token: " + token;
+      return;
     }
-  </script>
+    const doc = result.docs[0];
+    const container = document.getElementById("image-container");
+    container.innerHTML = `
+      <img src="${doc.image}" alt="Image" />
+      <div class="token">Token: ${doc.token}</div>
+    `;
+  }).catch(err => {
+    errorMsg.textContent = "Error fetching image: " + err.message;
+  });
+}
+</script>
+
 </body>
 </html>
