@@ -195,6 +195,21 @@
         });
       }
     };
+ 
+  function recoverUsername(name, email, mobile) {
+  gun.get('bobomacx').get('users').once((users) => {
+    let found = false;
+    Object.entries(users).forEach(([username, data]) => {
+      if (data && data.name === name && data.email === email && data.mobile === mobile) {
+        setStatus(`Your username is: ${username}`, 'green');
+        found = true;
+      }
+    });
+    if (!found) {
+      setStatus('Information did not match any record. Please check your details.', 'red');
+    }
+  });
+}
   </script>
 </body>
 </html>
