@@ -38,15 +38,15 @@
     const createCard = (doc) => {
       const card = document.createElement('div');
       card.className = 'card';
-      const tokenLink = `${location.origin}/img.html?token=${doc.token}`;
+      const tokenLink = `img.html?token=${doc.token}`;
 
-      card.innerHTML = `
-        <img src="${doc.image}" alt="Image" />
-        <div class="token">Token: <b>${doc.token}</b></div>
-        <div class="link"><a href="${tokenLink}" target="_blank">Open Image</a></div>
-        <button onclick="copyLink('${tokenLink}')">Copy Link</button>
-        <button onclick="deleteImage('${doc._id}', '${doc._rev}')">Delete</button>
-      `;
+card.innerHTML = `
+  <img src="${doc.image}" alt="Image" />
+  <div class="token">Token: <b>${doc.token}</b></div>
+  <div class="link"><a href="${tokenLink}" target="_blank">Open Image</a></div>
+  <button onclick="copyLink('${tokenLink}')">Copy Link</button>
+  <button onclick="deleteImage('${doc._id}', '${doc._rev}')">Delete</button>
+`;
       imageContainer.appendChild(card);
     };
 
