@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bobomacx Token Image Viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 60px; }
+    img { max-width: 90%; border-radius: 10px; box-shadow: 0 0 10px #999; }
+    .token { margin-top: 10px; color: #333; font-size: 16px; }
+    .error { color: red; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Bobomacx Token Access</h2>
+  <div id="imageBox"></div>
+  <div class="token" id="tokenMsg"></div>
+  <div class="error" id="errorMsg"></div>
+
+  <script>
+    const gun = Gun();
+    const token = new URLSearchParams(window.location.search).get('token');
+    const imageBox = document.getElementById('imageBox');
+    const tokenMsg = document.getElementById('tokenMsg');
+    const errorMsg = document.getElementById('errorMsg');
+
+    if (!token) {
+      errorMsg.textContent = "No token provided in URL.";
+    } else {
+      gun.get('bobomacx').map().once((data, key) => {
+        if (!data) return;
+        if (key.endsWith(token)) {
+          const img = document.createElement('img');
+          img.src = data;
+          imageBox.appendChild(img);
+          tokenMsg.textContent = "Token: " + token;
+        }
+      });
+
+      setTimeout(() => {
+        if (!imageBox.innerHTML) {
+          errorMsg.textContent = "Image not found for token: " + token;
+        }
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
