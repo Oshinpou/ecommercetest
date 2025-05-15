@@ -1,25 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Check PouchDB Token</title>
+  <title>Bobomacx Image Upload</title>
   <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pouchdb-find@7.3.0/dist/pouchdb.find.min.js"></script>
 </head>
 <body>
-  <h2>Token Check: 0d09zu</h2>
-  <div id="output">Checking...</div>
+  <h2>Upload Image to Bobomacx Stock</h2>
+  <input type="file" id="fileInput" accept="image/*">
+  <button onclick="uploadImage()">Upload</button>
+
+  <div id="uploaded"></div>
 
   <script>
     const db = new PouchDB('bobomacx-stock');
-    db.find({ selector: { token: "0d09zu" } }).then(result => {
-      const output = document.getElementById('output');
-      if (result.docs.length === 0) {
-        output.textContent = "Image not found in this browser's PouchDB.";
-      } else {
-        output.innerHTML = "Image found!<br><img src='" + result.docs[0].image + "' style='max-width:300px;'>";
+    db.createIndex({ index: { fields: ['token'] } });
+
+    function generateToken(length = 6) {
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let token = '';
+      for (let i = 0; i < length; i++) {
+        token += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-    }).catch(err => {
-      document.getElementById('output').textContent = "Error: " + err.message;
-    });
+      return token;
+    }
+
+    function uploadImage() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      if (!file) return alert("Please choose an image");
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const base64Image = e.target.result;
+        const token = generateToken();
+
+        db.put({
+          _id: new Date().toISOString(),
+          token: token,
+          image: base64Image
+        }).then(() => {
+          const uploadedDiv = document.getElementById("uploaded");
+          uploadedDiv.innerHTML = `
+            <p><strong>Image Uploaded!</strong></p>
+            <p>Token: ${token}</p>
+            <p>Image: <img src="${base64Image}" width="200"></p>
+            <p><a href="img.html?token=${token}" target="_blank">View Image in img.html</a></p>
+          `;
+        }).catch(err => {
+          alert("Upload Error: " + err.message);
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   </script>
 </body>
 </html>
