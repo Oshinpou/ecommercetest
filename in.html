@@ -1,105 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Bobomacx Global Image Stock</title>
+  <title>Bobomacx Image Uploader</title>
   <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    .image-container { display: flex; flex-wrap: wrap; gap: 15px; }
-    .card {
-      border: 1px solid #aaa; padding: 10px;
-      border-radius: 10px; width: 200px; text-align: center;
-    }
-    img { width: 100%; height: auto; border-radius: 5px; }
-    .token, .link { font-size: 12px; color: #555; margin: 5px 0; }
-    .error { color: red; }
-    button { margin-top: 5px; padding: 5px 10px; }
+    .image-card { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+    img { max-width: 100%; max-height: 200px; display: block; margin-bottom: 5px; }
+    button { margin: 5px 0; }
   </style>
 </head>
 <body>
 
-  <h2>Bobomacx Global Image Stock</h2>
-  <input type="file" accept="image/*" id="imageInput" />
-  <p class="error" id="errorMsg"></p>
+<h2>Upload Image to Bobomacx Global Stock</h2>
+<input type="file" accept="image/*" onchange="handleUpload(event)">
+<div id="image-list"></div>
 
-  <div class="image-container" id="imageContainer"></div>
+<script>
+const db = new PouchDB('bobomacx-stock');
 
-  <script>
-    const db = new PouchDB('bobomacx-stock');
-    const gun = Gun();
-    const imageInput = document.getElementById('imageInput');
-    const imageContainer = document.getElementById('imageContainer');
-    const errorMsg = document.getElementById('errorMsg');
+function generateToken() {
+  return Math.random().toString(36).substring(2, 8); // short 6-char token
+}
 
-    const generateShortToken = () => Math.random().toString(36).substring(2, 8);
+function handleUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-    const createCard = (doc) => {
-      const card = document.createElement('div');
-      card.className = 'card';
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const imageData = e.target.result;
+    const token = generateToken();
+    const doc = {
+      _id: new Date().toISOString(),
+      token: token,
+      image: imageData
+    };
+
+    try {
+      await db.put(doc);
+      console.log("Saved doc:", doc);
+      displayImages();
+    } catch (err) {
+      alert("Error saving image: " + err.message);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function displayImages() {
+  db.allDocs({ include_docs: true, descending: true }).then(result => {
+    const container = document.getElementById("image-list");
+    container.innerHTML = "";
+
+    result.rows.forEach(row => {
+      const doc = row.doc;
       const tokenLink = `img.html?token=${doc.token}`;
 
-card.innerHTML = `
-  <img src="${doc.image}" alt="Image" />
-  <div class="token">Token: <b>${doc.token}</b></div>
-  <div class="link"><a href="${tokenLink}" target="_blank">Open Image</a></div>
-  <button onclick="copyLink('${tokenLink}')">Copy Link</button>
-  <button onclick="deleteImage('${doc._id}', '${doc._rev}')">Delete</button>
-`;
-      imageContainer.appendChild(card);
-    };
-
-    const loadImages = async () => {
-      imageContainer.innerHTML = '';
-      const allDocs = await db.allDocs({ include_docs: true });
-      allDocs.rows.forEach(row => createCard(row.doc));
-    };
-
-    const deleteImage = async (id, rev) => {
-      try {
-        await db.remove(id, rev);
-        gun.get('bobomacx').get(id).put(null);
-        await loadImages();
-      } catch (err) {
-        errorMsg.textContent = "Delete failed: " + err.message;
-      }
-    };
-
-    const copyLink = (link) => {
-      navigator.clipboard.writeText(link);
-      alert("Link copied: " + link);
-    };
-
-    imageInput.addEventListener('change', async (e) => {
-      errorMsg.textContent = '';
-      const file = e.target.files[0];
-      if (!file || !file.type.startsWith('image/')) {
-        errorMsg.textContent = "Please select a valid image file.";
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const token = generateShortToken();
-        const id = 'img_' + Date.now();
-        const doc = { _id: id, image: reader.result, token };
-
-        try {
-          await db.put(doc);
-          gun.get('bobomacx').get(id).put(doc.image);
-          createCard(doc);
-        } catch (err) {
-          errorMsg.textContent = "Upload failed: " + err.message;
-        }
-      };
-      reader.readAsDataURL(file);
+      const div = document.createElement("div");
+      div.className = "image-card";
+      div.innerHTML = `
+        <img src="${doc.image}" alt="Image" />
+        <div><b>Token:</b> ${doc.token}</div>
+        <div><a href="${tokenLink}" target="_blank">Open with Token</a></div>
+        <button onclick="copyLink('${tokenLink}')">Copy Link</button>
+        <button onclick="deleteImage('${doc._id}', '${doc._rev}')">Delete</button>
+      `;
+      container.appendChild(div);
     });
+  });
+}
 
-    window.deleteImage = deleteImage;
-    window.copyLink = copyLink;
+function copyLink(link) {
+  navigator.clipboard.writeText(link).then(() => {
+    alert("Link copied!");
+  });
+}
 
-    loadImages();
-  </script>
+function deleteImage(id, rev) {
+  db.remove(id, rev).then(() => {
+    displayImages();
+  });
+}
+
+displayImages();
+</script>
+
 </body>
 </html>
