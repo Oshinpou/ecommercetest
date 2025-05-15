@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Link Tester - Bobomacx</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; text-align: center; }
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    img {
+      margin-top: 20px;
+      max-width: 90%;
+      max-height: 500px;
+      border: 1px solid #ccc;
+    }
+    .error {
+      color: red;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Bobomacx Image Link Test</h2>
+<p>Paste the full link (e.g., <code>img.html?token=abc123</code>) to check if image loads:</p>
+
+<input type="text" id="imageLink" placeholder="Enter full link like img.html?token=xyz123">
+<br>
+<button onclick="loadImage()">Test Image</button>
+
+<div id="previewContainer">
+  <div class="error" id="errorText"></div>
+  <iframe id="imageFrame" style="width:100%; height:600px; border:none; display:none;"></iframe>
+</div>
+
+<script>
+function loadImage() {
+  const link = document.getElementById("imageLink").value.trim();
+  const frame = document.getElementById("imageFrame");
+  const error = document.getElementById("errorText");
+
+  if (!link) {
+    error.textContent = "Please enter a valid link.";
+    frame.style.display = "none";
+    return;
+  }
+
+  // Load img.html in iframe to check if image appears
+  frame.src = link;
+  frame.style.display = "block";
+  error.textContent = "";
+}
+</script>
+
+</body>
+</html>
