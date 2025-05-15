@@ -1,138 +1,99 @@
-<!DOCTYPE html><html lang="en">
+<!-- admin.html --><!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bobomacx Admin Panel</title>
+  <title>Admin Panel - Bobomacx</title>
   <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pouchdb/dist/pouchdb.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.2.1/dist/pouchdb.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f8f9fa; }
+    input { margin-bottom: 10px; width: 300px; padding: 8px; }
+    button { margin: 5px; padding: 8px 12px; }
+    .account { background: #fff; padding: 10px; border-radius: 5px; margin: 10px 0; box-shadow: 0 0 4px rgba(0,0,0,0.1); }
+  </style>
 </head>
-<body class="p-4">
-  <h1 class="mb-4">Bobomacx Admin Panel</h1>  <div class="mb-5">
-  <div style="margin-bottom: 20px;">
-  <input type="text" id="accountSearchInput" placeholder="Search by username, email, or phone..." style="padding: 8px; width: 300px;" />
-  <button onclick="searchAccount()" style="padding: 8px;">Search</button>
-</div>
-<div id="searchResults" style="margin-top: 20px;"></div>
-    <h3>Accounts Created</h3>
-    <table class="table table-bordered" id="accountsTable">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Country Code</th>
-          <th>Created Date & Time (India)</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="accountList"></tbody>
-    </table>
-  </div>  <script>
-    const gun = Gun(['https://gunjs-server.herokuapp.com/gun']);
-    const db = new PouchDB('bobomacx_accounts');
-    const adminRef = gun.get('bobomacx').get('accounts');
+<body>
+  <h2>Bobomacx Admin Panel</h2>
+  <input type="text" id="searchUsername" placeholder="Search by Username" />
+  <input type="email" id="searchEmail" placeholder="Search by Email" />
+  <input type="tel" id="searchPhone" placeholder="Search by Phone (with country code)" />
+  <button onclick="searchAccounts()">Search</button>  <div id="accountsContainer"></div>  <script>
+    const gun = Gun();
+    const db = new PouchDB('bobomacx');
 
-    // Load accounts
-    adminRef.map().once((data, key) => {
-      if (data && data.username) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${data.username}</td>
-          <td>${data.email}</td>
-          <td>${data.phone}</td>
-          <td>${data.countryCode}</td>
-          <td>${data.createdAt}</td>
-          <td>
-            <button class="btn btn-danger btn-sm" onclick="confirmDelete('${key}')">Delete Permanently</button>
-          </td>
-        `;
-        document.getElementById('accountList').appendChild(tr);
-      }
-    });
-
-    function confirmDelete(key) {
-      let confirmCount = 0;
-      const requiredConfirms = 12;
-      const confirmDelete = () => {
-        confirmCount++;
-        if (confirmCount === requiredConfirms) {
-          deleteAllAccountData(key);
-        } else {
-          const remaining = requiredConfirms - confirmCount;
-          alert(`Confirm ${remaining} more time(s) to delete.`);
-        }
-      };
-      confirmDelete();
-    }
-
-    function deleteAllAccountData(key) {
-      // 1. Clear from Gun
-      gun.get('bobomacx').get('accounts').get(key).put(null);
-
-      // 2. Clear from PouchDB
-      db.get(key).then(doc => {
-        return db.remove(doc);
-      }).catch(err => console.warn('Not found in PouchDB:', err));
-
-      // 3. TODO: Clear from CouchDB via API if connected
-
-      alert("Account and all associated data permanently deleted.");
-      location.reload();
-    }
-
-  async function searchAccount() {
-    const query = document.getElementById('accountSearchInput').value.trim().toLowerCase();
-    const resultsContainer = document.getElementById('searchResults');
-    resultsContainer.innerHTML = "Searching...";
-
-    if (!query) {
-      resultsContainer.innerHTML = "Please enter a search term.";
-      return;
-    }
-
-    try {
-      const matchedAccounts = [];
-
-      // Assume Gun is initialized as `gun`
-      const accountsNode = gun.get('bobomacx').get('accounts');
-
-      accountsNode.map().once((data, key) => {
-        if (data) {
-          const username = (data.username || "").toLowerCase();
-          const email = (data.email || "").toLowerCase();
-          const phone = (data.phone || "").toLowerCase();
-
-          if (username.includes(query) || email.includes(query) || phone.includes(query)) {
-            matchedAccounts.push({ key, ...data });
-          }
-        }
-
-        // Display after short delay to gather all map results
-        setTimeout(() => {
-          if (matchedAccounts.length === 0) {
-            resultsContainer.innerHTML = "No matching accounts found.";
-            return;
-          }
-
-          const html = matchedAccounts.map(account => `
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-              <strong>Username:</strong> ${account.username || 'N/A'}<br>
-              <strong>Email:</strong> ${account.email || 'N/A'}<br>
-              <strong>Phone:</strong> ${account.phone || 'N/A'}<br>
-              <strong>Created:</strong> ${account.createdAt || 'N/A'}
-            </div>
-          `).join("");
-
-          resultsContainer.innerHTML = html;
-        }, 500);
+    function loadAllAccounts() {
+      gun.get('bobomacx').get('accounts').map().once((data, key) => {
+        if (data) displayAccount(key, data);
       });
-
-    } catch (err) {
-      console.error("Search error:", err);
-      resultsContainer.innerHTML = "Error occurred while searching.";
     }
-  }
+
+    function displayAccount(username, data) {
+      const container = document.getElementById('accountsContainer');
+      const div = document.createElement('div');
+      div.className = 'account';
+      div.id = `acc-${username}`;
+      div.innerHTML = `
+        <b>Username:</b> ${username}<br>
+        <b>Email:</b> ${data.email}<br>
+        <b>Phone:</b> ${data.phone}<br>
+        <b>Created At (IST):</b> ${data.createdAt || 'Unknown'}<br>
+        <b>Status:</b> <span id="status-${username}">${data.status || 'active'}</span><br>
+        <button onclick="deactivate('${username}')">Deactivate</button>
+        <button onclick="reactivate('${username}')">Reactivate</button>
+        <button onclick="confirmDelete('${username}')">Delete Permanently</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function deactivate(username) {
+      gun.get('bobomacx').get('accounts').get(username).get('status').put('deactivated');
+      document.getElementById(`status-${username}`).innerText = 'deactivated';
+    }
+
+    function reactivate(username) {
+      gun.get('bobomacx').get('accounts').get(username).get('status').put('active');
+      document.getElementById(`status-${username}`).innerText = 'active';
+    }
+
+    function confirmDelete(username) {
+      let confirmed = 0;
+      const interval = setInterval(() => {
+        if (confirm(`Confirm ${++confirmed}/12 to delete account: ${username}?`)) {
+          if (confirmed === 12) {
+            deleteAccount(username);
+            clearInterval(interval);
+          }
+        } else {
+          clearInterval(interval);
+          alert('Deletion cancelled');
+        }
+      }, 200);
+    }
+
+    function deleteAccount(username) {
+      gun.get('bobomacx').get('accounts').get(username).put(null);
+      db.get(username).then(doc => db.remove(doc));
+      const elem = document.getElementById(`acc-${username}`);
+      if (elem) elem.remove();
+      alert('Account permanently deleted.');
+    }
+
+    function searchAccounts() {
+      const user = searchUsername.value.trim().toLowerCase();
+      const email = searchEmail.value.trim().toLowerCase();
+      const phone = searchPhone.value.trim();
+      document.getElementById('accountsContainer').innerHTML = '';
+      gun.get('bobomacx').get('accounts').map().once((data, key) => {
+        if (!data) return;
+        if (
+          (user && key.toLowerCase().includes(user)) ||
+          (email && data.email?.toLowerCase().includes(email)) ||
+          (phone && data.phone?.includes(phone))
+        ) displayAccount(key, data);
+      });
+    }
+
+    loadAllAccounts();
   </script></body>
-  </html>
+</html>
