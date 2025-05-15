@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login / Signup - Bobomacx</title>
@@ -25,7 +24,6 @@
       <option value="+91">+91 India</option>
       <option value="+1">+1 USA</option>
       <option value="+44">+44 UK</option>
-      <!-- Add more country codes as needed -->
     </select>
     <input type="password" id="signupPassword" placeholder="Password" required />
     <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required />
@@ -42,12 +40,22 @@
     <input type="text" id="recoverUsername" placeholder="Username" required />
     <input type="email" id="recoverEmail" placeholder="Email" required />
     <input type="tel" id="recoverPhone" placeholder="Phone" required />
+    <select id="recoverCountryCode">
+      <option value="+91">+91 India</option>
+      <option value="+1">+1 USA</option>
+      <option value="+44">+44 UK</option>
+    </select>
     <button type="submit">Recover Password</button>
     <div id="recoverPasswordMessage"></div>
   </form>  <h3>Recover Username</h3>
   <form id="recoverUsernameForm">
     <input type="email" id="usernameEmail" placeholder="Email" required />
     <input type="tel" id="usernamePhone" placeholder="Phone" required />
+    <select id="usernameCountryCode">
+      <option value="+91">+91 India</option>
+      <option value="+1">+1 USA</option>
+      <option value="+44">+44 UK</option>
+    </select>
     <input type="password" id="knownPassword" placeholder="Known Password" required />
     <button type="submit">Recover Username</button>
     <div id="recoverUsernameMessage"></div>
@@ -60,6 +68,10 @@
     const user = gun.user();
 
     const ISTOffset = 5.5 * 60 * 60 * 1000;
+
+    function updateLoginStatus(username) {
+      localStorage.setItem('bobomacxSession', JSON.stringify({ username }));
+    }
 
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -84,6 +96,7 @@
           };
           gun.get('bobomacx').get('accounts').get(username).put(accountData);
           await db.put({ _id: username, ...accountData });
+          updateLoginStatus(username);
           signupMessage.textContent = 'Account created successfully!';
         });
       });
@@ -93,21 +106,46 @@
       e.preventDefault();
       const username = loginUsername.value.trim();
       const password = loginPassword.value;
+
+      const session = JSON.parse(localStorage.getItem('bobomacxSession'));
+      if (session && session.username === username) {
+        loginMessage.textContent = 'You are already logged in.';
+        return;
+      }
+
       user.auth(username, password, (ack) => {
         if (ack.err) return loginMessage.textContent = ack.err;
-        localStorage.setItem('bobomacxSession', JSON.stringify({ username }));
+        updateLoginStatus(username);
         loginMessage.textContent = 'Login successful!';
       });
     });
 
     document.getElementById('recoverPasswordForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      recoverPasswordMessage.textContent = 'Feature not implemented. Manual admin intervention required.';
+      const username = recoverUsername.value.trim();
+      const email = recoverEmail.value.trim();
+      const phone = `${recoverCountryCode.value} ${recoverPhone.value.trim()}`;
+
+      gun.get('bobomacx').get('accounts').get(username).once((data) => {
+        if (!data || data.email !== email || data.phone !== phone) {
+          recoverPasswordMessage.textContent = 'Account info does not match.';
+        } else {
+          recoverPasswordMessage.textContent = 'Password recovery requires admin assistance.';
+        }
+      });
     });
 
     document.getElementById('recoverUsernameForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      recoverUsernameMessage.textContent = 'Feature not implemented. Manual admin intervention required.';
+      const email = usernameEmail.value.trim();
+      const phone = `${usernameCountryCode.value} ${usernamePhone.value.trim()}`;
+      const knownPassword = knownPassword.value.trim();
+
+      gun.get('bobomacx').get('accounts').map().once(async (data, key) => {
+        if (data && data.email === email && data.phone === phone) {
+          recoverUsernameMessage.textContent = `Your username may be: ${key}`;
+        }
+      });
     });
 
     function logout() {
@@ -119,9 +157,8 @@
     window.onload = () => {
       const session = JSON.parse(localStorage.getItem('bobomacxSession'));
       if (session && session.username) {
-        // Optionally auto-authenticate with saved credentials or JWT
-        console.log('Session found for:', session.username);
+        document.body.insertAdjacentHTML('beforeend', `<p>Logged in as: <strong>${session.username}</strong></p>`);
       }
     };
   </script></body>
-  </html>
+</html>
