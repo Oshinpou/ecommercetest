@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bobomacx Background Test</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      background-color: #000;
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to Bobomacx</h1>
+
+  <script>
+    // Fetch image from PouchDB by token and apply as background
+    const token = "0d09zu";
+    const db = new PouchDB('bobomacx-stock');
+
+    db.find({ selector: { token } }).then(result => {
+      if (result.docs.length === 0) {
+        document.body.innerHTML = "<h2>Image not found for token.</h2>";
+        return;
+      }
+      const imageData = result.docs[0].image;
+      document.body.style.backgroundImage = `url('${imageData}')`;
+    }).catch(err => {
+      document.body.innerHTML = `<h2>Error: ${err.message}</h2>`;
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
+</body>
+</html>
