@@ -1,19 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Show Global Image</title>
-  <script src="https://cdn.jsdelivr.net/npm/pouchdb@7.3.1/dist/pouchdb.min.js"></script>
-  <script src="image-viewer.js"></script>
+  <title>View Image by Token</title>
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
 </head>
 <body>
+  <div id="imageContainer">Loading image...</div>
 
-<h2>Global Image Display</h2>
-<div id="show-here"></div>
+  <script>
+    const gun = Gun();
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
 
-<script>
-  const token = "abc123"; // Use real token
-  loadImageFromToken(token, "show-here");
-</script>
-
+    if (!token) {
+      document.getElementById("imageContainer").innerText = "No token provided.";
+    } else {
+      gun.get("images").get(token).once((data) => {
+        if (data && data.data) {
+          const img = new Image();
+          img.src = data.data;
+          img.style.maxWidth = "100%";
+          document.getElementById("imageContainer").innerHTML = "";
+          document.getElementById("imageContainer").appendChild(img);
+        } else {
+          document.getElementById("imageContainer").innerText = "Image not found.";
+        }
+      });
+    }
+  </script>
 </body>
 </html>
