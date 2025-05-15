@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html><html lang="en">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login / Signup - Bobomacx</title>
@@ -59,106 +60,83 @@
     <input type="password" id="knownPassword" placeholder="Known Password" required />
     <button type="submit">Recover Username</button>
     <div id="recoverUsernameMessage"></div>
-  </form><button onclick="logout()">Logout</button> <button onclick="history.back()">Back</button>
+  </form>  <div id="statusSection"></div>
+  <button onclick="logout()">Logout</button>
+  <button onclick="history.back()">Back</button><script>
+  const gun = Gun();
+  const SEA = Gun.SEA;
+  const db = new PouchDB('bobomacx');
+  const user = gun.user();
 
-  <script>
-    const gun = Gun();
-    const SEA = Gun.SEA;
-    const db = new PouchDB('bobomacx');
-    const user = gun.user();
+  function getMumbaiTime() {
+    const offsetIST = 5.5 * 60 * 60 * 1000;
+    return new Date(Date.now() + offsetIST).toISOString();
+  }
 
-    const ISTOffset = 5.5 * 60 * 60 * 1000;
+  const session = JSON.parse(localStorage.getItem('bobomacxSession'));
+  const statusSection = document.getElementById('statusSection');
+  if (session && session.username) {
+    gun.get('bobomacx').get('accounts').get(session.username).once(data => {
+      statusSection.innerHTML = `<p class="message">Logged in as ${session.username}<br>Email: ${data.email}<br>Phone: ${data.phone}<br>Created At (IST): ${data.createdAt}</p>`;
+    });
+  } else {
+    statusSection.innerHTML = '<p class="error">You are not logged in.</p>';
+  }
 
-    function updateLoginStatus(username) {
+  document.getElementById('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = signupUsername.value.trim();
+    const email = signupEmail.value.trim();
+    const phone = signupPhone.value.trim();
+    const code = countryCode.value;
+    const password = signupPassword.value;
+    const confirm = signupConfirmPassword.value;
+    const createdAt = getMumbaiTime();
+
+    if (password !== confirm) return signupMessage.textContent = 'Passwords do not match';
+
+    user.create(username, password, async (ack) => {
+      if (ack.err) return signupMessage.textContent = ack.err;
+
+      user.auth(username, password, async () => {
+        const accountData = { email, phone: `${code} ${phone}`, createdAt };
+        gun.get('bobomacx').get('accounts').get(username).put(accountData);
+        await db.put({ _id: username, ...accountData });
+        signupMessage.textContent = 'Account created successfully!';
+        localStorage.setItem('bobomacxSession', JSON.stringify({ username }));
+        location.reload();
+      });
+    });
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (session && session.username) return loginMessage.textContent = 'You are already logged in';
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value;
+    user.auth(username, password, (ack) => {
+      if (ack.err) return loginMessage.textContent = ack.err;
       localStorage.setItem('bobomacxSession', JSON.stringify({ username }));
-    }
-
-    document.getElementById('signupForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = signupUsername.value.trim();
-      const email = signupEmail.value.trim();
-      const phone = signupPhone.value.trim();
-      const code = countryCode.value;
-      const password = signupPassword.value;
-      const confirm = signupConfirmPassword.value;
-      const createdAt = new Date(Date.now() + ISTOffset).toISOString();
-
-      if (password !== confirm) return signupMessage.textContent = 'Passwords do not match';
-
-      user.create(username, password, async (ack) => {
-        if (ack.err) return signupMessage.textContent = ack.err;
-
-        user.auth(username, password, async () => {
-          const accountData = {
-            email,
-            phone: `${code} ${phone}`,
-            createdAt
-          };
-          gun.get('bobomacx').get('accounts').get(username).put(accountData);
-          await db.put({ _id: username, ...accountData });
-          updateLoginStatus(username);
-          signupMessage.textContent = 'Account created successfully!';
-        });
-      });
+      loginMessage.textContent = 'Login successful!';
+      location.reload();
     });
+  });
 
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = loginUsername.value.trim();
-      const password = loginPassword.value;
+  document.getElementById('recoverPasswordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    recoverPasswordMessage.textContent = 'This requires manual admin reset.';
+  });
 
-      const session = JSON.parse(localStorage.getItem('bobomacxSession'));
-      if (session && session.username === username) {
-        loginMessage.textContent = 'You are already logged in.';
-        return;
-      }
+  document.getElementById('recoverUsernameForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    recoverUsernameMessage.textContent = 'This requires manual admin lookup.';
+  });
 
-      user.auth(username, password, (ack) => {
-        if (ack.err) return loginMessage.textContent = ack.err;
-        updateLoginStatus(username);
-        loginMessage.textContent = 'Login successful!';
-      });
-    });
-
-    document.getElementById('recoverPasswordForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = recoverUsername.value.trim();
-      const email = recoverEmail.value.trim();
-      const phone = `${recoverCountryCode.value} ${recoverPhone.value.trim()}`;
-
-      gun.get('bobomacx').get('accounts').get(username).once((data) => {
-        if (!data || data.email !== email || data.phone !== phone) {
-          recoverPasswordMessage.textContent = 'Account info does not match.';
-        } else {
-          recoverPasswordMessage.textContent = 'Password recovery requires admin assistance.';
-        }
-      });
-    });
-
-    document.getElementById('recoverUsernameForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = usernameEmail.value.trim();
-      const phone = `${usernameCountryCode.value} ${usernamePhone.value.trim()}`;
-      const knownPassword = knownPassword.value.trim();
-
-      gun.get('bobomacx').get('accounts').map().once(async (data, key) => {
-        if (data && data.email === email && data.phone === phone) {
-          recoverUsernameMessage.textContent = `Your username may be: ${key}`;
-        }
-      });
-    });
-
-    function logout() {
-      user.leave();
-      localStorage.removeItem('bobomacxSession');
-      alert('Logged out successfully');
-    }
-
-    window.onload = () => {
-      const session = JSON.parse(localStorage.getItem('bobomacxSession'));
-      if (session && session.username) {
-        document.body.insertAdjacentHTML('beforeend', `<p>Logged in as: <strong>${session.username}</strong></p>`);
-      }
-    };
-  </script></body>
+  function logout() {
+    user.leave();
+    localStorage.removeItem('bobomacxSession');
+    alert('Logged out successfully');
+    location.reload();
+  }
+</script></body>
 </html>
