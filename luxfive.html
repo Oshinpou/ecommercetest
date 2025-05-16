@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FMACX Fellish MACX - HyperLuxury</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Orbitron:wght@700&display=swap" rel="stylesheet"/>
+
+<style>
+  /* Reset */
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+  body, html {
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0a0a0a, #121212);
+    color: #fff;
+    overflow-x: hidden;
+    user-select: none;
+  }
+
+  /* Particle Canvas */
+  #particle-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Container */
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 1200px;
+    margin: auto;
+    padding: 40px 20px;
+  }
+
+  /* Hero Section */
+  header {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    perspective: 1500px;
+    text-align: center;
+    padding: 0 20px;
+  }
+
+  header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 6rem;
+    color: #0ff;
+    text-shadow: 0 0 30px #0ff, 0 0 50px #00ffffaa;
+    transition: transform 0.2s ease-out;
+  }
+
+  header h2 {
+    margin-top: 10px;
+    font-weight: 600;
+    font-size: 2rem;
+    color: #0ff;
+    text-shadow: 0 0 20px #00ffffaa;
+    font-style: italic;
+  }
+
+  /* Interactive Card */
+  .interactive-card {
+    margin-top: 40px;
+    width: 350px;
+    height: 450px;
+    background: rgba(0, 255, 255, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 0 40px #00ffff55;
+    backdrop-filter: blur(15px);
+    border: 2px solid #00ffff99;
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease-out;
+    cursor: grab;
+  }
+
+  .interactive-card img {
+    width: 100%;
+    border-radius: 20px;
+    user-select: none;
+  }
+
+  /* Product Carousel */
+  .carousel {
+    margin-top: 80px;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 30px;
+    padding-bottom: 20px;
+  }
+
+  .carousel::-webkit-scrollbar {
+    height: 8px;
+  }
+  .carousel::-webkit-scrollbar-track {
+    background: #111;
+  }
+  .carousel::-webkit-scrollbar-thumb {
+    background: #0ff;
+    border-radius: 4px;
+  }
+
+  .product {
+    scroll-snap-align: start;
+    flex: 0 0 300px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 0 20px #0ff;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .product:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 50px #0ff;
+  }
+
+  .product img {
+    width: 100%;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    user-select: none;
+  }
+
+  .product h3 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    color: #0ff;
+    text-shadow: 0 0 10px #00ffffcc;
+  }
+
+  .product p {
+    font-weight: 400;
+    font-size: 1rem;
+    color: #ccf7ffdd;
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 30px 0;
+    color: #0ff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 1.5px;
+    user-select: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    header h1 {
+      font-size: 4rem;
+    }
+    .interactive-card {
+      width: 90vw;
+      height: 400px;
+    }
+    .carousel {
+      gap: 20px;
+    }
+    .product {
+      flex: 0 0 80vw;
+    }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+
+<div class="container">
+
+  <header>
+    <h1 id="hero-title">FMACX Fellish MACX</h1>
+    <h2>Where Power Meets Perfection</h2>
+
+    <div class="interactive-card" id="interactive-card">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80" alt="FMACX Product" />
+    </div>
+  </header>
+
+  <section>
+    <div class="carousel" id="carousel">
+      <div class="product">
+        <img src="https://images.unsplash.com/photo-1526045612212-70caf35c14df?auto=format&fit=crop&w=600&q=80" alt="Fellish Serum" />
+        <h3>Fellish Serum</h3>
+        <p>Luxury peptide blend to redefine your face with precision.</p>
+      </div>
+      <div class="product">
+        <img src="https://images.unsplash.com/photo-1563225405-9c48dbd75bb1?auto=format&fit=crop&w=600&q=80" alt="MACX Elixir" />
+        <h3>MACX Elixir</h3>
+        <p>Potent botanical infusion that hydrates and sculpts with elegance.</p>
+      </div>
+      <div class="product">
+        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80" alt="Luxury Pillow" />
+        <h3>Luxury Pillow</h3>
+        <p>Hand-crafted silk pillow with memory foam support for ultimate comfort.</p>
+      </div>
+      <div class="product">
+        <img src="https://images.unsplash.com/photo-1511452191736-d7a4c1e1e011?auto=format&fit=crop&w=600&q=80" alt="Blue Gold Chocolat" />
+        <h3>Blue Gold Chocolat</h3>
+        <p>Rare blend with saffron and sea salt, a true taste of extravagance.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>© 2025 FMACX Fellish MACX — Elevate Beyond Infinity</footer>
+
+<script>
+  // Particle Background
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let w, h;
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const particles = [];
+  const maxParticles = 150;
+
+  class Particle {
+    constructor() {
+      this.reset();
+    }
+    reset() {
+      this.x = Math.random() * w;
+      this.y = Math.random() * h;
+      this.size = Math.random() * 2 + 0.5;
+      this.speedX = (Math.random() - 0.5) * 0.3;
+      this.speedY = (Math.random() - 0.5) * 0.3;
+      this.opacity = Math.random() * 0.5 + 0.1;
+    }
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      if (this.x > w || this.x < 0 || this.y > h || this.y < 0) {
+        this.reset();
+      }
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,255,255,${this.opacity})`;
+      ctx.fill();
+    }
+  }
+
+  for(let i=0; i < maxParticles; i++) {
+    particles.push(new Particle());
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // Interactive Card Parallax
+  const card = document.getElementById('interactive-card');
+  card.style.transformStyle = 'preserve-3d';
+
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width/2;
+    const y = e.clientY - rect.top - rect.height/2;
+    const rotateX = (-y / rect.height) * 15;
+    const rotateY = (x / rect.width) * 15;
+    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+  });
+
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'rotateX(0) rotateY(0) scale(1)';
+  });
+
+  // Auto-scroll carousel
+  const carousel = document.getElementById('carousel');
+  let scrollAmount = 0;
+  const scrollStep = 1;
+  const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+
+  function autoScroll() {
+    scrollAmount += scrollStep;
+    if(scrollAmount >= maxScroll) scrollAmount = 0;
+    carousel.scrollTo({
+      left: scrollAmount,
+      behavior: 'smooth'
+    });
+    requestAnimationFrame(autoScroll);
+  }
+  autoScroll();
+
+</script>
+</body>
+</html>
