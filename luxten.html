@@ -364,13 +364,20 @@
       <img src="https://cdn-icons-png.flaticon.com/512/535/535285.png" alt="Decorative glowing card" draggable="false" />
     </div>
 
-    <!-- Back Button Placeholder -->
-    <div id="back-placeholder" aria-label="Back Button Placeholder"></div>
+     <!-- Inside body -->
+<div id="back-placeholder"></div>
+<div id="footer-placeholder"></div>
 
-    <!-- Footer Placeholder -->
-    <footer id="footer-placeholder" aria-label="Footer Placeholder"></footer>
+<!-- Script to load them -->
+<script>
+  fetch("backbutton.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("back-placeholder").innerHTML = data);
 
-  </div>
+  fetch("footer.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("footer-placeholder").innerHTML = data);
+</script>
 
 <script>
   function loginApp() {
