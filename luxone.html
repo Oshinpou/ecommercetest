@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BOBOMACX Elite Marketplace</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      font-family: 'Roboto', sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      scroll-behavior: smooth;
+    }
+    header {
+      background: rgba(0, 0, 0, 0.9);
+      text-align: center;
+      padding: 3rem;
+      box-shadow: 0 0 50px rgba(255,255,255,0.1);
+    }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      letter-spacing: 2px;
+      color: #e0cba8;
+      animation: pulseGlow 3s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0% { text-shadow: 0 0 10px #e0cba8; }
+      50% { text-shadow: 0 0 30px #f0d000; }
+      100% { text-shadow: 0 0 10px #e0cba8; }
+    }
+    .hero {
+      height: 100vh;
+      background: url('https://images.unsplash.com/photo-1604475095771-6a4fae90d6ec') center/cover no-repeat fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      color: white;
+    }
+    .hero h2 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: fadeDown 2s ease;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      animation: fadeUp 2s ease 0.5s both;
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    section {
+      padding: 6rem 2rem;
+      text-align: center;
+    }
+    .section-title {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: #e0cba8;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      padding: 0 2rem;
+    }
+    .feature {
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: all 0.4s ease;
+    }
+    .feature:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-10px);
+      box-shadow: 0 0 30px rgba(255,255,255,0.1);
+    }
+    .parallax {
+      background: url('https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb') center/cover fixed;
+      height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #fff;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .grid-showcase {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      padding: 4rem 2rem;
+      background: #111;
+    }
+    .grid-showcase img {
+      width: 100%;
+      border-radius: 1rem;
+      transition: transform 0.3s ease;
+    }
+    .grid-showcase img:hover {
+      transform: scale(1.05);
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background: #0a0a0a;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+    .floating-cards {
+      position: absolute;
+      top: 10vh;
+      left: 10vw;
+      width: 80vw;
+      display: flex;
+      gap: 2rem;
+      animation: floatCards 6s infinite ease-in-out;
+    }
+    @keyframes floatCards {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BOBOMACX Elite Marketplace</h1>
+  </header>
+  <section class="hero">
+    <h2>Luxury Has a New Destination</h2>
+    <p>Immerse in the ultimate shopping experience powered by innovation and exclusivity.</p>
+  </section>
+  <section>
+    <h2 class="section-title">Why Choose Us</h2>
+    <div class="features">
+      <div class="feature">Ultra-Secure Blockchain Verification</div>
+      <div class="feature">Global Image Tokenization System</div>
+      <div class="feature">Parallax Luxury Category Sections</div>
+      <div class="feature">Interactive 3D Product Rotators</div>
+      <div class="feature">Voice Search Capabilities</div>
+      <div class="feature">Live AI Shopping Assistant</div>
+      <div class="feature">Animated Floating Reviews</div>
+      <div class="feature">Elegant Neon Button Animations</div>
+      <div class="feature">GSAP Scroll-triggered Effects</div>
+      <div class="feature">Smart Predictive Search Bar</div>
+      <div class="feature">Live Exchange Rates for Luxury Items</div>
+      <div class="feature">Augmented Reality Viewers (AR)</div>
+      <div class="feature">Personal Luxury Dashboards</div>
+      <div class="feature">Geo-Location Based Deals</div>
+      <div class="feature">Animated Cryptocurrency Payments</div>
+      <div class="feature">Quantum Secure Login System</div>
+      <div class="feature">Custom User Avatars & AI Skins</div>
+      <div class="feature">NFT + Physical Product Links</div>
+      <div class="feature">Iconic Brand Collaborations</div>
+      <div class="feature">Exclusive Collector Editions Showroom</div>
+    </div>
+  </section>
+  <section class="parallax">
+    Feel the Future of Shopping
+  </section>
+  <section>
+    <h2 class="section-title">Luxury Collections</h2>
+    <div class="grid-showcase">
+      <img src="https://images.unsplash.com/photo-1604014238643-f9c5fc8ee0aa" alt="Luxury Chair" />
+      <img src="https://images.unsplash.com/photo-1575068124718-b2f7cfbf34d4" alt="Jewelry" />
+      <img src="https://images.unsplash.com/photo-1621233623923-8cc1e12a8705" alt="Skincare" />
+      <img src="https://images.unsplash.com/photo-1603192827375-e7aa3b6f5d5b" alt="Accessories" />
+    </div>
+  </section>
+  <footer>
+    &copy; 2025 BOBOMACX Elite Marketplace — All Rights Reserved.
+  </footer>  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>  <script>
+    gsap.from(".feature", {
+      y: 50,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.15,
+      ease: "power2.out"
+    });
+    gsap.from(".grid-showcase img", {
+      scale: 0.8,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.2,
+      scrollTrigger: {
+        trigger: ".grid-showcase",
+        start: "top 80%"
+      }
+    });
+  </script></body>
+</html>
