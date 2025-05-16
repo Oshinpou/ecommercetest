@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>imacx | Iconic Luxury</title>
+  <link rel="stylesheet" href="style.css" />
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #0d0d0d;
+  color: #fff;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: #111;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: #e0c18d;
+  letter-spacing: 2px;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+}
+
+nav ul li a {
+  color: #ccc;
+  text-decoration: none;
+  margin-left: 30px;
+  transition: color 0.3s;
+}
+
+nav ul li a:hover {
+  color: #fff;
+}
+
+.hero {
+  height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url('https://images.unsplash.com/photo-1586439372203-5c30428b3eae?auto=format&fit=crop&w=1500') no-repeat center center/cover;
+  text-align: center;
+}
+
+.hero-text h1 {
+  font-size: 50px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.hero-text p {
+  font-size: 20px;
+  margin-bottom: 30px;
+  color: #e0c18d;
+}
+
+button {
+  padding: 12px 28px;
+  background: #e0c18d;
+  border: none;
+  color: #000;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #fff1d0;
+}
+
+.section {
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.section h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: #e0c18d;
+}
+
+.product-cards {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.card {
+  background: #1a1a1a;
+  padding: 40px 20px;
+  border-radius: 20px;
+  width: 220px;
+  box-shadow: 0 0 15px rgba(224, 193, 141, 0.2);
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+footer {
+  background: #111;
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #777;
+}
+
+</style>
+</head>
+<body>
+  <header>
+    <div class="logo">imacx</div>
+    <nav>
+      <ul>
+        <li><a href="#products">Products</a></li>
+        <li><a href="#vision">Vision</a></li>
+        <li><a href="#shop">Shop</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Reveal Your Iconic Self</h1>
+      <p>Luxury beyond shine. Experience imacx.</p>
+      <button onclick="exploreNow()">Explore Now</button>
+    </div>
+  </section>
+
+  <section id="products" class="section">
+    <h2>Our Icons</h2>
+    <div class="product-cards">
+      <div class="card">Iconic Face Serum</div>
+      <div class="card">Blue Chocolate</div>
+      <div class="card">Fur Bean Bed</div>
+    </div>
+ 
+  </section>
+
+  <section id="vision" class="section">
+    <h2>Our Vision</h2>
+    <p>To shape lives with luxury — from skincare to lifestyle.</p>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 imacx. Crafted for beauty & brilliance.</p>
+  </footer>
+
+  <script>
+  function exploreNow() {
+  window.location.href = "#products";
+}
+  </script>
+</body>
+</html>
