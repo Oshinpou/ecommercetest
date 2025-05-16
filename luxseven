@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FMACX Ultraverse - Supreme HyperLuxury</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * {margin: 0; padding: 0; box-sizing: border-box;}
+    html, body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(ellipse at center, #000 0%, #0f0f0f 100%);
+      color: #f8f9fa;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+    header {
+      height: 100vh;
+      background: linear-gradient(to right, #020024, #090979, #00d4ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      color: #fff;
+      padding: 0 20px;
+    }
+    header h1 {
+      font-size: 4.5rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #00f0ff, #ff00e0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow 3s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      0% { text-shadow: 0 0 20px #00fff7; }
+      100% { text-shadow: 0 0 40px #ff00e0; }
+    }
+    header p {
+      font-size: 1.5rem;
+      margin-top: 20px;
+      color: #f1f1f1;
+      max-width: 600px;
+    }
+    .btn-primary {
+      margin-top: 40px;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #00fff7, #ff00e0);
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 0 30px #00fff7aa;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 60px #ff00e0aa;
+    }
+    .section {
+      padding: 80px 20px;
+      max-width: 1200px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+      align-items: center;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #444;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0 40px rgba(255, 0, 255, 0.3);
+    }
+    .card h3 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      color: #00fff7;
+    }
+    .card p {
+      font-size: 1rem;
+      color: #ccc;
+      line-height: 1.6;
+    }
+    footer {
+      padding: 60px 20px;
+      text-align: center;
+      background: #000;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    @media screen and (max-width: 600px) {
+      header h1 { font-size: 2.5rem; }
+      header p { font-size: 1rem; }
+      .btn-primary { font-size: 1rem; padding: 12px 30px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FMACX ULTRAVERSE</h1>
+    <p>The $100 Trillion Experience – Ultra Clean. Ultra Class. Ultra Future.</p>
+    <button class="btn-primary">Explore Now</button>
+  </header>  <section class="section">
+    <div class="card">
+      <h3>Beyond Time</h3>
+      <p>Experience timeless innovation wrapped in futuristic form. FMACX brings you hyper-function and elegance in every pixel.</p>
+    </div>
+    <div class="card">
+      <h3>Luxury Evolved</h3>
+      <p>Unseen sophistication and interactive simplicity merge for the wealthiest of digital desires. Rich animations, smooth design, flawless UI.</p>
+    </div>
+    <div class="card">
+      <h3>Universal Fit</h3>
+      <p>Perfect for every screen size. Every gesture. Every vision. From ultrawide to ultra mobile, elegance is never compromised.</p>
+    </div>
+  </section>  <footer>
+    &copy; 2025 FMACX Ultraverse. Designed for Eternity.
+  </footer>
+</body>
+</html>
