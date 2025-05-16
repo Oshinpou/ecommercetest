@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FMACX Fellish MACX - HyperLuxury</title>
+
+<!-- SEO Meta -->
+<meta name="description" content="FMACX Fellish MACX - The pinnacle of luxury products combining futuristic design and unmatched power." />
+<meta name="keywords" content="FMACX, Fellish MACX, luxury, futuristic design, high-end products" />
+<meta name="author" content="FMACX Team" />
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Orbitron:wght@700&display=swap" rel="stylesheet"/>
+
+<style>
+  /* Reset */
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+  body, html {
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0a0a0a, #121212);
+    color: #fff;
+    overflow-x: hidden;
+    user-select: none;
+    transition: background-color 0.5s ease;
+  }
+
+  /* Dark Mode */
+  body.dark-mode {
+    background: linear-gradient(135deg, #121212, #000);
+    color: #0ff;
+  }
+
+  /* Particle Canvas */
+  #particle-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Scroll Progress Bar */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 5px;
+    background: #0ff;
+    width: 0;
+    z-index: 100;
+    transition: width 0.25s ease;
+  }
+
+  /* Container */
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 1200px;
+    margin: auto;
+    padding: 40px 20px;
+  }
+
+  /* Hero Section */
+  header {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    perspective: 1500px;
+    text-align: center;
+    padding: 0 20px;
+  }
+
+  header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 6rem;
+    color: #0ff;
+    text-shadow: 0 0 30px #0ff, 0 0 50px #00ffffaa;
+    transition: transform 0.2s ease-out, text-shadow 1.5s ease-in-out;
+    animation: glowPulse 3s ease-in-out infinite alternate;
+    cursor: default;
+  }
+  @keyframes glowPulse {
+    0% { text-shadow: 0 0 30px #0ff, 0 0 50px #00ffffaa; }
+    100% { text-shadow: 0 0 50px #00ffff, 0 0 70px #00ffffcc; }
+  }
+
+  header h2 {
+    margin-top: 10px;
+    font-weight: 600;
+    font-size: 2rem;
+    color: #0ff;
+    text-shadow: 0 0 20px #00ffffaa;
+    font-style: italic;
+    user-select: none;
+  }
+
+  /* Interactive Card */
+  .interactive-card {
+    margin-top: 40px;
+    width: 350px;
+    height: 450px;
+    background: rgba(0, 255, 255, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 0 40px #00ffff55;
+    backdrop-filter: blur(15px);
+    border: 2px solid #00ffff99;
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease-out;
+    cursor: grab;
+    position: relative;
+  }
+
+  .interactive-card img {
+    width: 100%;
+    border-radius: 20px;
+    user-select: none;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: absolute;
+    background: rgba(0, 255, 255, 0.9);
+    color: #000;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    z-index: 20;
+  }
+
+  /* Product Carousel */
+  .carousel {
+    margin-top: 80px;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 30px;
+    padding-bottom: 20px;
+  }
+
+  .carousel::-webkit-scrollbar {
+    height: 8px;
+  }
+  .carousel::-webkit-scrollbar-track {
+    background: #111;
+  }
+  .carousel::-webkit-scrollbar-thumb {
+    background: #0ff;
+    border-radius: 4px;
+  }
+
+  .product {
+    scroll-snap-align: start;
+    flex: 0 0 300px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 0 20px #0ff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+  }
+
+  .product:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 50px #0ff;
+  }
+
+  .product img {
+    width: 100%;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    user-select: none;
+  }
+
+  .product h3 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    color: #0ff;
+    text-shadow: 0 0 10px #00ffffcc;
+  }
+
+  .product p {
+    font-weight: 400;
+    font-size: 1rem;
+    color: #ccf7ffdd;
+    line-height: 1.4;
+  }
+
+  /* Glowing Border Animation */
+  .product:hover {
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+  }
+  .product:hover::before {
+    content: "";
+    position: absolute;
+    top: -4px; left: -4px; right: -4px; bottom: -4px;
+    border-radius: 22px;
+    background: linear-gradient(45deg, #00ffff, #0066ff, #00ffff);
+    animation: glowingBorder 2.5s linear infinite;
+    z-index: -1;
+  }
+  @keyframes glowingBorder {
+    0% { background-position: 0 0; }
+    100% { background-position: 400% 0; }
+  }
+
+  /* Back to Top Button */
+  #back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #0ff;
+    color: #000;
+    padding: 12px 16px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 0 15px #0ff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    z-index: 100;
+  }
+  #back-to-top.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Wishlist Heart */
+  .wishlist {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 28px;
+    color: rgba(255, 0, 150, 0.7);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.3s ease;
+  }
+  .wishlist.active {
+    color: #ff0066;
+    text-shadow: 0 0 8px #ff0066;
+  }
+
+  /* Modal Styles */
+  #modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  #modal.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  #modal .modal-content {
+    background: #121212;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 0 30px #00ffffaa;
+    max-width: 600px;
+    text-align: center;
+    color: #fff;
+    position: relative;
+  }
+
+  #modal .modal-content h2 {
+    font-size: 2rem;
+    color: #0ff;
+    margin-bottom: 20px;
+  }
+
+  #modal .modal-content p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #ccc;
+  }
+
+  #modal .close-btn {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 24px;
+    color: #0ff;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  #modal .close-btn:hover {
+    color: #fff;
+  }
+
+</style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+<div id="progress-bar"></div>
+
+<div class="container">
+  <header>
+    <h1>FMACX</h1>
+    <h2>Fellish MACX - HyperLuxury Beyond Reality</h2>
+
+    <div class="interactive-card" onclick="openModal()">
+      <img src="https://via.placeholder.com/350x450.png?text=Fellish+MACX" alt="Fellish MACX Product" />
+      <div class="tooltip" id="cardTooltip">Click to explore elite detail</div>
+    </div>
+  </header>
+
+  <section class="carousel" id="productCarousel">
+    <!-- Sample Product -->
+    <div class="product">
+      <div class="wishlist" onclick="toggleWishlist(this)">♥</div>
+      <img src="https://via.placeholder.com/300x200.png?text=FMACX+X1" alt="Product X1" />
+      <h3>FMACX X1 Ultra</h3>
+      <p>The revolutionary powerhouse of design, featuring quantum-tuned energy flow and AI-sensitive responsiveness.</p>
+    </div>
+    <!-- Add more product divs here -->
+  </section>
+</div>
+
+<div id="modal">
+  <div class="modal-content">
+    <div class="close-btn" onclick="closeModal()">×</div>
+    <h2>FMACX Elite Preview</h2>
+    <p>This model redefines luxury with space-age materials, holographic interactions, and built-in neuro-adaptive feedback systems. Stay tuned for full specifications.</p>
+  </div>
+</div>
+
+<div id="back-to-top" onclick="scrollToTop()">↑</div>
+
+<script>
+  // Scroll Progress
+  window.addEventListener('scroll', () => {
+    const scrollTop = document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const progress = (scrollTop / scrollHeight) * 100;
+    document.getElementById('progress-bar').style.width = progress + '%';
+
+    const backToTop = document.getElementById('back-to-top');
+    if (scrollTop > 300) backToTop.classList.add('show');
+    else backToTop.classList.remove('show');
+  });
+
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Modal
+  function openModal() {
+    document.getElementById('modal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+
+  // Wishlist Toggle
+  function toggleWishlist(el) {
+    el.classList.toggle('active');
+  }
+
+  // Tooltip
+  const card = document.querySelector('.interactive-card');
+  const tooltip = document.getElementById('cardTooltip');
+  card.addEventListener('mousemove', e => {
+    tooltip.style.opacity = 1;
+    tooltip.style.left = e.offsetX + 20 + 'px';
+    tooltip.style.top = e.offsetY + 'px';
+  });
+  card.addEventListener('mouseleave', () => {
+    tooltip.style.opacity = 0;
+  });
+</script>
+
+</body>
+</html>
