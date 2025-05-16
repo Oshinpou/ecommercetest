@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FMACX Marketplace - HyperLuxury Login</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Orbitron:wght@700&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+
+  <!-- External scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uuid@9.0.0/dist/umd/uuidv4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment-timezone/builds/moment-timezone-with-data.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/validator@13.9.0/validator.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash/lodash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+  <style>
+    /* Reset */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body, html {
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #121212);
+      color: #fff;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* Particle Canvas */
+    #particle-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: auto;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Header Sticker Placeholder */
+    #header-placeholder {
+      width: 100%;
+      margin-bottom: 30px;
+      z-index: 15;
+      position: relative;
+    }
+
+    /* Blue Edgy Glass Container with Sparkle */
+    .glass-container {
+      background: rgba(10, 25, 50, 0.25); /* transparent blue glass */
+      border: 2px solid rgba(0, 140, 255, 0.7); /* bright blue edgy border */
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 2rem;
+      padding: 3rem 2.5rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 0 30px rgba(0, 140, 255, 0.4), 0 0 40px rgba(0, 200, 255, 0.6);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      margin-bottom: 50px;
+    }
+
+    /* Sparkle Effect */
+    .glass-container::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8) 2px, transparent 5px),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.6) 1.5px, transparent 4px),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.7) 2px, transparent 6px);
+      background-repeat: repeat;
+      background-size: 100px 100px;
+      animation: sparkleMove 12s linear infinite;
+      z-index: 1;
+      mix-blend-mode: screen;
+      filter: drop-shadow(0 0 4px rgba(0, 140, 255, 0.8));
+    }
+
+    @keyframes sparkleMove {
+      from {
+        background-position: 0 0, 50px 50px, 25px 25px;
+      }
+      to {
+        background-position: 100px 100px, 150px 150px, 125px 125px;
+      }
+    }
+
+    /* Make inner content above sparkles */
+    .glass-container > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Form label/input styling */
+    label {
+      color: #cbd5e1; /* tailwind slate-300 */
+    }
+    input[type="text"], input[type="email"], input[type="password"], select {
+      background: rgba(255 255 255 / 0.9);
+      color: #000;
+      border-radius: 0.375rem;
+      border: 1px solid #ccc;
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      margin-top: 0.25rem;
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    input::placeholder {
+      color: #666;
+    }
+    select {
+      cursor: pointer;
+    }
+    .error-message {
+      color: #f87171; /* red-400 */
+      font-size: 0.875rem;
+      display: none;
+      margin-top: -0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Buttons */
+    button.btn {
+      background-color: #0ea5e9; /* sky-500 */
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+      font-size: 1.1rem;
+      width: 100%;
+    }
+    button.btn:hover {
+      background-color: #0284c7; /* sky-700 */
+    }
+    button.underline {
+      background: none;
+      border: none;
+      color: #0ea5e9;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.875rem;
+      margin-top: 1rem;
+      display: block;
+      text-align: center;
+    }
+
+    /* Interactive Card */
+    .interactive-card {
+      width: 350px;
+      height: 450px;
+      background: rgba(0, 255, 255, 0.15);
+      border-radius: 20px;
+      box-shadow: 0 0 40px #00ffff55;
+      backdrop-filter: blur(15px);
+      border: 2px solid #00ffff99;
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease-out;
+      cursor: grab;
+      margin-bottom: 50px;
+      user-select: none;
+    }
+    .interactive-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+      user-select: none;
+    }
+
+    /* Hero Section Text */
+    header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 40px;
+      user-select: none;
+    }
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 6rem;
+      color: #0ff;
+      text-shadow: 0 0 30px #0ff, 0 0 50px #00ffffaa;
+      transition: transform 0.2s ease-out;
+      line-height: 1;
+    }
+    header h2 {
+      margin-top: 10px;
+      font-weight: 600;
+      font-size: 2rem;
+      color: #0ff;
+      text-shadow: 0 0 20px #00ffffaa;
+      font-style: italic;
+    }
+
+    /* Footer & back button placeholders */
+    #back-placeholder, #footer-placeholder {
+      width: 100%;
+      z-index: 15;
+      position: relative;
+      margin-top: 50px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      header h1 {
+        font-size: 3.5rem;
+      }
+      header h2 {
+        font-size: 1.25rem;
+      }
+      .glass-container {max-width: 90%;
+      padding: 2rem 1.5rem;
+    }
+    .interactive-card {
+      width: 280px;
+      height: 360px;
+    }
+  </style>
+</head>
+<body x-data="loginApp()" x-init="init()" @mousemove="handleMouseMove($event)">
+
+  <!-- Particle Canvas -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Container -->
+  <div class="container">
+
+    <!-- Header sticker placeholder -->
+    <div id="header-placeholder" aria-label="Header Sticker Placeholder"></div>
+
+    <!-- Hero Section -->
+    <header>
+      <h1 @mousemove="handleTitleMouseMove($event)" @mouseleave="handleTitleMouseLeave()"
+          :style="{ transform: 'rotateX(' + tiltX + 'deg) rotateY(' + tiltY + 'deg)' }"
+          aria-label="Welcome to FMACX Marketplace">FMACX</h1>
+      <h2>HyperLuxury Login</h2>
+    </header>
+
+    <!-- Glass Container with Forms -->
+    <div class="glass-container" role="main" aria-live="polite" aria-atomic="true">
+
+      <!-- LOGIN FORM -->
+      <form x-show="currentForm==='login'" @submit.prevent="submitLogin()" class="space-y-4" aria-label="Login Form" tabindex="0">
+        <h3 class="text-center text-xl font-semibold mb-4">Login to Your Account</h3>
+        <label for="login-username">Username or Email</label>
+        <input type="text" id="login-username" x-model="login.username" required autocomplete="username" placeholder="Enter username or email" />
+
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" x-model="login.password" required autocomplete="current-password" placeholder="Enter your password" />
+
+        <button type="submit" class="btn">Login</button>
+
+        <button type="button" class="underline" @click="switchForm('recoverPassword')" aria-label="Recover Password">Forgot Password?</button>
+        <button type="button" class="underline" @click="switchForm('recoverUsername')" aria-label="Recover Username">Forgot Username?</button>
+        <button type="button" class="underline" @click="switchForm('signup')" aria-label="Sign up for a new account">Sign Up</button>
+      </form>
+
+      <!-- SIGNUP FORM -->
+      <form x-show="currentForm==='signup'" @submit.prevent="submitSignup()" class="space-y-4" aria-label="Sign Up Form" tabindex="0" style="display:none;">
+        <h3 class="text-center text-xl font-semibold mb-4">Create a New Account</h3>
+
+        <label for="signup-username">Username</label>
+        <input type="text" id="signup-username" x-model="signup.username" required minlength="3" maxlength="20" autocomplete="username" placeholder="Choose your username" />
+
+        <label for="signup-email">Email Address</label>
+        <input type="email" id="signup-email" x-model="signup.email" required autocomplete="email" placeholder="Enter your email address" />
+
+        <label for="signup-phone">Phone Number</label>
+        <div class="flex space-x-2">
+          <select id="signup-countrycode" x-model="signup.countryCode" required aria-label="Select country calling code" class="w-24">
+            <option value="+1">+1 USA</option>
+            <option value="+91" selected>+91 India</option>
+            <option value="+44">+44 UK</option>
+            <option value="+81">+81 Japan</option>
+            <option value="+61">+61 Australia</option>
+            <option value="+49">+49 Germany</option>
+            <!-- Add more country codes as needed -->
+          </select>
+          <input type="text" id="signup-phone" x-model="signup.phone" required pattern="[0-9]{7,15}" placeholder="Enter phone number" aria-describedby="phoneHelp" />
+        </div>
+        <small id="phoneHelp" class="text-gray-300">Enter digits only, no spaces or dashes.</small>
+
+        <label for="signup-password">Password</label>
+        <input type="password" id="signup-password" x-model="signup.password" required minlength="8" placeholder="Create a password (min 8 chars)" autocomplete="new-password" />
+
+        <label for="signup-password-confirm">Confirm Password</label>
+        <input type="password" id="signup-password-confirm" x-model="signup.passwordConfirm" required placeholder="Confirm your password" autocomplete="new-password" />
+
+        <button type="submit" class="btn">Sign Up</button>
+
+        <button type="button" class="underline" @click="switchForm('login')" aria-label="Back to Login">Back to Login</button>
+      </form>
+
+      <!-- RECOVER PASSWORD FORM -->
+      <form x-show="currentForm==='recoverPassword'" @submit.prevent="submitRecoverPassword()" class="space-y-4" aria-label="Recover Password Form" tabindex="0" style="display:none;">
+        <h3 class="text-center text-xl font-semibold mb-4">Recover Password</h3>
+
+        <label for="recover-email">Enter your registered Email</label>
+        <input type="email" id="recover-email" x-model="recover.email" required placeholder="Email address" autocomplete="email" />
+
+        <button type="submit" class="btn">Send Recovery Link</button>
+
+        <button type="button" class="underline" @click="switchForm('login')" aria-label="Back to Login">Back to Login</button>
+      </form>
+
+      <!-- RECOVER USERNAME FORM -->
+      <form x-show="currentForm==='recoverUsername'" @submit.prevent="submitRecoverUsername()" class="space-y-4" aria-label="Recover Username Form" tabindex="0" style="display:none;">
+        <h3 class="text-center text-xl font-semibold mb-4">Recover Username</h3>
+
+        <label for="recover-username-email">Enter your registered Email</label>
+        <input type="email" id="recover-username-email" x-model="recoverUsername.email" required placeholder="Email address" autocomplete="email" />
+
+        <button type="submit" class="btn">Send Username Info</button>
+
+        <button type="button" class="underline" @click="switchForm('login')" aria-label="Back to Login">Back to Login</button>
+      </form>
+
+    </div>
+
+    <!-- Interactive Card -->
+    <div class="interactive-card" aria-label="Interactive decorative card">
+      <img src="https://cdn-icons-png.flaticon.com/512/535/535285.png" alt="Decorative glowing card" draggable="false" />
+    </div>
+
+    <!-- Back Button Placeholder -->
+    <div id="back-placeholder" aria-label="Back Button Placeholder"></div>
+
+    <!-- Footer Placeholder -->
+    <footer id="footer-placeholder" aria-label="Footer Placeholder"></footer>
+
+  </div>
+
+<script>
+  function loginApp() {
+    return {
+      currentForm: 'login', // login, signup, recoverPassword, recoverUsername
+      tiltX: 0,
+      tiltY: 0,
+
+      // Model data
+      login: {
+        username: '',
+        password: '',
+      },
+      signup: {
+        username: '',
+        email: '',
+        countryCode: '+91',
+        phone: '',
+        password: '',
+        passwordConfirm: '',
+      },
+      recover: {
+        email: '',
+      },
+      recoverUsername: {
+        email: '',
+      },
+
+      init() {
+        // Initialize anything if needed
+      },
+
+      handleMouseMove(e) {
+        // Parallax effect for interactive card or others can be added here
+      },
+
+      handleTitleMouseMove(e) {
+        const rect = e.target.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        this.tiltX = (-y / rect.height) * 15;
+        this.tiltY = (x / rect.width) * 15;
+      },
+
+      handleTitleMouseLeave() {
+        this.tiltX = 0;
+        this.tiltY = 0;
+      },
+
+      switchForm(formName) {
+        this.currentForm = formName;
+        // Clear form fields on switch optionally:
+        if(formName === 'signup'){
+          this.clearSignup();
+        } else if(formName === 'login'){
+          this.clearLogin();
+        } else if(formName === 'recoverPassword'){
+          this.recover.email = '';
+        } else if(formName === 'recoverUsername'){
+          this.recoverUsername.email = '';
+        }
+      },
+
+      clearLogin() {
+        this.login.username = '';
+        this.login.password = '';
+      },
+      clearSignup() {
+        this.signup.username = '';
+        this.signup.email = '';
+        this.signup.phone = '';
+        this.signup.password = '';
+        this.signup.passwordConfirm = '';
+        this.signup.countryCode = '+91';
+      },
+
+      // Submit Handlers (placeholders)
+      submitLogin() {
+        if(!this.login.username || !this.login.password){
+          Swal.fire('Error', 'Please fill in all login fields', 'error');
+          return;
+        }
+        // Here, insert actual login logic (API, GunDB, etc)
+        Swal.fire('Success', `Logged in as ${this.login.username}`, 'success');
+      },
+
+      submitSignup() {
+        // Basic front-end validations:
+        if(this.signup.password !== this.signup.passwordConfirm){
+          Swal.fire('Error', 'Passwords do not match', 'error');
+          return;
+        }
+        if(this.signup.password.length < 8){
+          Swal.fire('Error', 'Password must be at least 8 characters', 'error');
+          return;
+        }
+        if(!this.signup.username || !this.signup.email || !this.signup.phone){
+          Swal.fire('Error', 'Please fill in all required fields', 'error');
+          return;
+        }
+        if(!/^\d{7,15}$/.test(this.signup.phone)){
+          Swal.fire('Error', 'Phone number must be digits only, 7-15 characters', 'error');
+          return;
+        }
+
+        // Signup logic goes here (API, GunDB etc)
+        Swal.fire('Success', `Account created for ${this.signup.username}`, 'success');
+        this.switchForm('login');
+      },
+
+      submitRecoverPassword() {
+        if(!this.recover.email){
+          Swal.fire('Error', 'Please enter your registered email', 'error');
+          return;
+        }
+        // Recover password logic (send email or reset link)
+        Swal.fire('Sent', 'Password recovery link sent to your email', 'success');
+        this.switchForm('login');
+      },
+
+      submitRecoverUsername() {
+        if(!this.recoverUsername.email){
+          Swal.fire('Error', 'Please enter your registered email', 'error');
+          return;
+        }
+        // Recover username logic (send username to email)
+        Swal.fire('Sent', 'Username information sent to your email', 'success');
+        this.switchForm('login');
+      }
+    }
+  }
+
+  // Particle Background Script
+  (function(){
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particles = [];
+
+    function randomRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = randomRange(0, width);
+        this.y = randomRange(0, height);
+        this.size = randomRange(1, 3);
+        this.speedX = randomRange(-0.3, 0.3);
+        this.speedY = randomRange(-0.3, 0.3);
+        this.opacity = randomRange(0.2, 0.7);
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > width || this.y < 0 || this.y > height) {
+          this.reset();
+        }
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(0, 200, 255, ${this.opacity})`;
+        ctx.shadowColor = 'cyan';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+      }
+    }
+
+    function init() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      particles = [];
+      for(let i=0; i<100; i++){
+        particles.push(new Particle());
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', init);
+    init();
+    animate();
+  })();
+</script>
+
+</body>
+</html>
