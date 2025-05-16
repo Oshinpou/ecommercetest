@@ -247,7 +247,19 @@
     }
   </style>
 </head>
-<body x-data="loginApp()" x-init="init()" @mousemove="handleMouseMove($event)">
+
+  <!-- Header Sticker -->
+  <div id="header-placeholder"></div>
+
+<script>
+  fetch("header.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("header-placeholder").innerHTML = data;
+    });
+</script>
+
+  <body x-data="loginApp()" x-init="init()" @mousemove="handleMouseMove($event)">
 
   <!-- Particle Canvas -->
   <canvas id="particle-canvas"></canvas>
