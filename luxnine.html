@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FMACX Marketplace - HyperLuxury Login</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Orbitron:wght@700&display=swap" rel="stylesheet"/>
+
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+
+  <!-- External scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uuid@9.0.0/dist/umd/uuidv4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment-timezone/builds/moment-timezone-with-data.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/validator@13.9.0/validator.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash/lodash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+  <style>
+    /* Reset */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body, html {
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #121212);
+      color: #fff;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* Particle Canvas */
+    #particle-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: auto;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Header Sticker Placeholder */
+    #header-placeholder {
+      width: 100%;
+      margin-bottom: 30px;
+      z-index: 15;
+      position: relative;
+    }
+
+    /* Blue Edgy Glass Container with Sparkle */
+    .glass-container {
+      background: rgba(10, 25, 50, 0.25); /* transparent blue glass */
+      border: 2px solid rgba(0, 140, 255, 0.7); /* bright blue edgy border */
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 2rem;
+      padding: 3rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 0 30px rgba(0, 140, 255, 0.4), 0 0 40px rgba(0, 200, 255, 0.6);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      margin-bottom: 50px;
+    }
+
+    /* Sparkle Effect */
+    .glass-container::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8) 2px, transparent 5px),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.6) 1.5px, transparent 4px),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.7) 2px, transparent 6px);
+      background-repeat: repeat;
+      background-size: 100px 100px;
+      animation: sparkleMove 12s linear infinite;
+      z-index: 1;
+      mix-blend-mode: screen;
+      filter: drop-shadow(0 0 4px rgba(0, 140, 255, 0.8));
+    }
+
+    @keyframes sparkleMove {
+      from {
+        background-position: 0 0, 50px 50px, 25px 25px;
+      }
+      to {
+        background-position: 100px 100px, 150px 150px, 125px 125px;
+      }
+    }
+
+    /* Make inner content above sparkles */
+    .glass-container > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Login form text and input styling */
+    #loginForm label {
+      color: #cbd5e1; /* tailwind slate-300 */
+    }
+    #loginForm input, #loginForm select {
+      background: rgba(255 255 255 / 0.9);
+      color: #000;
+      border-radius: 0.375rem;
+      border: 1px solid #ccc;
+    }
+    #loginForm input::placeholder {
+      color: #666;
+    }
+    #errorMessage {
+      color: #f87171; /* red-400 */
+      font-size: 0.875rem;
+      display: none;
+      margin-top: 0.25rem;
+    }
+
+    /* Interactive Card */
+    .interactive-card {
+      width: 350px;
+      height: 450px;
+      background: rgba(0, 255, 255, 0.15);
+      border-radius: 20px;
+      box-shadow: 0 0 40px #00ffff55;
+      backdrop-filter: blur(15px);
+      border: 2px solid #00ffff99;
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease-out;
+      cursor: grab;
+      margin-bottom: 50px;
+    }
+    .interactive-card img {
+      width: 100%;
+      border-radius: 20px;
+      user-select: none;
+    }
+
+    /* Hero Section Text */
+    header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 40px;
+      user-select: none;
+    }
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 6rem;
+      color: #0ff;
+      text-shadow: 0 0 30px #0ff, 0 0 50px #00ffffaa;
+      transition: transform 0.2s ease-out;
+      line-height: 1;
+    }
+    header h2 {
+      margin-top: 10px;
+      font-weight: 600;
+      font-size: 2rem;
+      color: #0ff;
+      text-shadow: 0 0 20px #00ffffaa;
+      font-style: italic;
+    }
+
+    /* Footer & back button placeholders */
+    #back-placeholder, #footer-placeholder {
+      width: 100%;
+      z-index: 15;
+      position: relative;
+      margin-top: 50px;
+    }
+
+    /* Forms Section smaller text */
+    #forms-container {
+      font-size: 0.875rem;
+      color: #a0aec0; /* tailwind gray-400 */
+    }
+    #forms-container input.input, #forms-container select.input {
+      display: block;
+      width: 100%;
+      padding: 0.4rem 0.5rem;
+      margin-bottom: 0.6rem;
+      border-radius: 0.375rem;
+      border: 1px solid #ccc;
+      color: #000;
+    }
+    #forms-container button.btn {
+      background-color: #0ea5e9; /* sky-500 */
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+    #forms-container button.btn:hover {
+      background-color: #0284c7; /* sky-700 */
+    }
+    #forms-container button.underline {
+      background: none;
+      border: none;
+      color: #0ea5e9;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particle background canvas -->
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="container">
+    <!-- Header Sticker -->
+    <div id="header-placeholder"></div>
+
+    <!-- Hero Section -->
+    <header>
+      <h1>FMACX</h1>
+      <h2>Fellish MACX - HyperLuxury</h2>
+    </header>
+
+    <!-- Interactive Card (You can add image here or keep empty) -->
+
+<!-- Interactive Card -->
+    <div class="interactive-card" id="interactiveCard">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=350&q=80" alt="Luxury Product" draggable="false" />
+    </div>
+
+    <!-- Blue Edgy Glass Login Container -->
+    <section class="glass-container" aria-label="Login form section">
+      <form id="loginForm" novalidate>
+        <h3 class="text-2xl font-bold mb-6 text-center text-cyan-400">FMACX Marketplace Login</h3>
+
+        <label for="email" class="block mb-1">Email address</label>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email" />
+        <div id="errorEmail" class="error-message" style="color:#f87171;display:none;">Please enter a valid email address.</div>
+
+        <label for="password" class="block mt-4 mb-1">Password</label>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password" minlength="6" />
+        <div id="errorPassword" class="error-message" style="color:#f87171;display:none;">Password must be at least 6 characters.</div>
+
+        <button type="submit" class="mt-6 btn w-full">Login</button>
+
+        <p class="mt-4 text-center text-gray-400 text-sm">
+          Don't have an account? <button type="button" class="underline btn" id="registerBtn">Register</button>
+        </p>
+      </form>
+    </section>
+
+    <!-- Back and Footer placeholders -->
+    <div id="back-placeholder"></div>
+    <div id="footer-placeholder"></div>
+  </div>
+
+<script>
+  // Particle background animation
+  (() => {
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, particles;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.radius = Math.random() * 2 + 1;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.alpha = Math.random() * 0.5 + 0.3;
+      }
+      move() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if(this.x < 0 || this.x > width) this.vx *= -1;
+        if(this.y < 0 || this.y > height) this.vy *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 255, 255, ${this.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    function initParticles(count) {
+      particles = [];
+      for(let i=0; i<count; i++) {
+        particles.push(new Particle());
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => {
+        p.move();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    initParticles(100);
+    animate();
+  })();
+
+  // Interactive card rotation effect
+  (() => {
+    const card = document.getElementById('interactiveCard');
+    let mouseX = 0, mouseY = 0;
+    let centerX, centerY;
+
+    function updateCenter() {
+      const rect = card.getBoundingClientRect();
+      centerX = rect.left + rect.width/2;
+      centerY = rect.top + rect.height/2;
+    }
+    updateCenter();
+    window.addEventListener('resize', updateCenter);
+
+    card.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX - centerX;
+      mouseY = e.clientY - centerY;
+
+      const rotateX = (+mouseY / 25).toFixed(2);
+      const rotateY = (-mouseX / 25).toFixed(2);
+
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+    });
+  })();
+
+  // Login form validation and demo alert
+  (() => {
+    const form = document.getElementById('loginForm');
+    const emailInput = form.email;
+    const passwordInput = form.password;
+    const errorEmail = document.getElementById('errorEmail');
+    const errorPassword = document.getElementById('errorPassword');
+    const registerBtn = document.getElementById('registerBtn');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      let valid = true;
+
+      // Validate email
+      const emailVal = emailInput.value.trim();
+      if(!emailVal || !emailVal.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        errorEmail.style.display = 'block';
+        valid = false;
+      } else {
+        errorEmail.style.display = 'none';
+      }
+
+      // Validate password
+      const pwdVal = passwordInput.value.trim();
+      if(!pwdVal || pwdVal.length < 6) {
+        errorPassword.style.display = 'block';
+        valid = false;
+      } else {
+        errorPassword.style.display = 'none';
+      }
+
+      if(valid) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Successful',
+          text: 'Welcome to FMACX Marketplace!',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        form.reset();
+      }
+    });
+
+    registerBtn.addEventListener('click', () => {
+      Swal.fire({
+        icon: 'info',
+        title: 'Registration',
+        text: 'Registration functionality is coming soon!',
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
