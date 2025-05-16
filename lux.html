@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Macx Luxe Marketplace</title>  <!-- Google Fonts -->  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500&display=swap" rel="stylesheet">  <!-- Animate.css -->  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>  <!-- Tailwind CSS CDN -->  <script src="https://cdn.tailwindcss.com"></script>  <!-- GSAP CDN -->  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #0f0f0f, #1a1a1a);
+      color: #f5f5f5;
+    }
+    .hero {
+      background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=2000&q=80') center/cover;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .luxury-glow {
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    }
+  </style></head>
+<body class="overflow-x-hidden">
+  <!-- HERO -->
+  <section class="hero relative">
+    <div class="text-center text-white px-6">
+      <h1 class="text-5xl md:text-7xl font-bold luxury-glow animate__animated animate__fadeInDown">MACX Luxe Marketplace</h1>
+      <p class="mt-4 text-xl animate__animated animate__fadeInUp animate__delay-1s">World’s most powerful high-class buying experience</p>
+      <button class="mt-8 px-8 py-3 rounded-full text-black bg-white hover:bg-gray-200 transition-all animate__animated animate__fadeInUp animate__delay-2s">Explore Collections</button>
+    </div>
+  </section>  <!-- CATEGORIES -->  <section class="py-20 px-6 md:px-20">
+    <h2 class="text-4xl font-bold text-center mb-12">Exclusive Collections</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div class="bg-gray-900 rounded-2xl p-6 hover:scale-105 transition-transform shadow-xl">
+        <img src="https://images.unsplash.com/photo-1606813903364-c2875d6e4eec?auto=format&fit=crop&w=800&q=80" class="rounded-xl mb-4" />
+        <h3 class="text-2xl font-semibold mb-2">Luxury Furniture</h3>
+        <p class="text-gray-300">High-end handcrafted pieces for elite interiors.</p>
+      </div>
+      <div class="bg-gray-900 rounded-2xl p-6 hover:scale-105 transition-transform shadow-xl">
+        <img src="https://images.unsplash.com/photo-1578271880848-3e090fa7a5b5?auto=format&fit=crop&w=800&q=80" class="rounded-xl mb-4" />
+        <h3 class="text-2xl font-semibold mb-2">Designer Cosmetics</h3>
+        <p class="text-gray-300">Advanced skincare with powerful biotech actives.</p>
+      </div>
+      <div class="bg-gray-900 rounded-2xl p-6 hover:scale-105 transition-transform shadow-xl">
+        <img src="https://images.unsplash.com/photo-1600185365483-d1d0d5a7a0c1?auto=format&fit=crop&w=800&q=80" class="rounded-xl mb-4" />
+        <h3 class="text-2xl font-semibold mb-2">Gourmet Chocolate</h3>
+        <p class="text-gray-300">Finest artisan chocolates, rare ingredients, iconic taste.</p>
+      </div>
+    </div>
+  </section>  <!-- FOOTER -->  <footer class="py-10 text-center text-gray-400 text-sm border-t border-gray-700">
+    © 2025 MACX Luxe Marketplace. All rights reserved.
+  </footer>  <!-- GSAP Animations -->  <script>
+    gsap.from(".grid > div", {
+      opacity: 0,
+      y: 50,
+      duration: 1,
+      stagger: 0.3,
+      scrollTrigger: {
+        trigger: ".grid",
+        start: "top 80%",
+        toggleActions: "play none none none"
+      }
+    });
+  </script></body>
+</html>
